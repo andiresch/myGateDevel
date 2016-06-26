@@ -76,6 +76,7 @@ void GateLETActor::Construct() {
   else if (mAveragingType == "TrackAveraged" || mAveragingType == "TrackAverage" || mAveragingType == "Track" || mAveragingType == "track" || mAveragingType == "TrackAveragedDXAveraged"){mIsTrackAverageDEDX = true;}
   else if (mAveragingType == "TrackAveragedEdep" || mAveragingType == "TrackAverageEdep" ){mIsTrackAverageEdepDX = true;}
   else if (mAveragingType == "AverageKinEnergy"){mIsAverageKinEnergy = true;}
+  else if (mAveragingType == "beamQFactor"){mIsBeamQFactor = true;}
   else {GateError("The LET averaging Type" << GetObjectName()
                   << " is not valid ...\n Please select 'DoseAveraged' or 'TrackAveraged')");}
 
@@ -89,12 +90,16 @@ void GateLETActor::Construct() {
     {
       mLETFilename= removeExtension(mSaveFilename) + "-trackAveraged."+ getExtension(mSaveFilename);
     }
+  else if (mIsAverageKinEnergy){
+    mLETFilename= removeExtension(mLETFilename) + "-kinEnergyFluenceAverage."+getExtension(mLETFilename);
+  }
+  else if (mIsBeamQFactor){
+    mLETFilename= removeExtension(mLETFilename) + "-beamQFactor."+getExtension(mLETFilename);
+  }
   if (mIsLETtoWaterEnabled){
     mLETFilename= removeExtension(mLETFilename) + "-letToWater."+ getExtension(mLETFilename);
   }
-  if (mIsAverageKinEnergy){
-    mLETFilename= removeExtension(mLETFilename) + "-kinEnergyFluenceAverage."+getExtension(mLETFilename);
-  }
+
   if (mIsParallelCalculationEnabled)
     {
       numeratorFileName= removeExtension(mLETFilename) + "-numerator."+ getExtension(mLETFilename);
@@ -247,7 +252,31 @@ void GateLETActor::UserSteppingActionInVoxel(const int index, const G4Step* step
     normalizationVal = edep;
   }
   else if (mIsAverageKinEnergy) {
+	  
+	  //if (index == 1800 ) {
+		  //G4cout << "Energy pre: " << energy1<< G4endl;
+		  //G4cout << "Energy post: " << energy2 << G4endl;
+		  //G4cout << "Energy mid: " << energy << G4endl;
+		  //G4cout << "Steplength: " << steplength << G4endl;
+		  
+		  
+	//}
     weightedLET=steplength*energy*weight;
+    normalizationVal = steplength;
+  }
+  else if (mIsBeamQFactor) {
+	  
+	  //if (index == 1800 ) {
+		  //G4cout << "Energy pre: " << energy1<< G4endl;
+		  //G4cout << "Energy post: " << energy2 << G4endl;
+		  //G4cout << "Energy mid: " << energy << G4endl;
+		  //G4cout << "Steplength: " << steplength << G4endl;
+		  
+		  
+	//}
+    //weightedLET=steplength*energy*weight;
+    int zA = step->GetTrack()->GetDefinition()->GetAtomicNumber();
+    weightedLET=steplength* zA*zA/energy*weight;
     normalizationVal = steplength;
   }
   
