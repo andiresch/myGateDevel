@@ -89,6 +89,8 @@ protected:
   bool mIsDoseAverageEdepDX;
   
   bool mIsAverageKinEnergy;
+  bool mIsBeamQFactor;
+
 
 
   bool mIsParallelCalculationEnabled;
