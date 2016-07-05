@@ -33,6 +33,8 @@ GateLETActor::GateLETActor(G4String name, G4int depth):
   mIsDoseAverageDEDX=false;
   mIsDoseAverageEdepDX=false;
   mIsAverageKinEnergy=false;
+  mIsFluence=false;
+  mIsNumberOfHits=false;
   
 
   mIsLETtoWaterEnabled = false;
@@ -77,6 +79,8 @@ void GateLETActor::Construct() {
   else if (mAveragingType == "TrackAveragedEdep" || mAveragingType == "TrackAverageEdep" ){mIsTrackAverageEdepDX = true;}
   else if (mAveragingType == "AverageKinEnergy"){mIsAverageKinEnergy = true;}
   else if (mAveragingType == "beamQFactor"){mIsBeamQFactor = true;}
+  else if (mAveragingType == "Fluence"){mIsFluence = true;}
+  else if (mAveragingType == "NumberOfHits"){mIsNumberOfHits=true;}
   else {GateError("The LET averaging Type" << GetObjectName()
                   << " is not valid ...\n Please select 'DoseAveraged' or 'TrackAveraged')");}
 
@@ -100,6 +104,16 @@ void GateLETActor::Construct() {
     mLETFilename= removeExtension(mLETFilename) + "-letToWater."+ getExtension(mLETFilename);
   }
 
+  if (mIsFluence)
+  {  
+	  mLETFilename= removeExtension(mLETFilename) + "-fluence."+ getExtension(mLETFilename);
+  }
+  
+  if (mIsNumberOfHits)
+  {  
+	  mLETFilename= removeExtension(mLETFilename) + "-numberOfHits."+ getExtension(mLETFilename);
+  }
+  
   if (mIsParallelCalculationEnabled)
     {
       numeratorFileName= removeExtension(mLETFilename) + "-numerator."+ getExtension(mLETFilename);
@@ -111,7 +125,18 @@ void GateLETActor::Construct() {
   SetOriginTransformAndFlagToImage(mNormalizationLETImage);
   SetOriginTransformAndFlagToImage(mDoseTrackAverageLETImage);
   
-
+  if (mIsFluence || mIsNumberOfHits)
+  {  
+	SetOriginTransformAndFlagToImage(mLastHitEventImage);
+	SetOriginTransformAndFlagToImage(mNumberOfHitsImage);
+	
+	  mLastHitEventImage.SetResolutionAndHalfSize(mResolution, mHalfSize, mPosition);
+	  mLastHitEventImage.Allocate();
+	  
+	  mNumberOfHitsImage.SetResolutionAndHalfSize(mResolution, mHalfSize, mPosition);
+	  mNumberOfHitsImage.Allocate();
+	
+  }
 
   // Resize and allocate images
   mWeightedLETImage.SetResolutionAndHalfSize(mResolution, mHalfSize, mPosition);
@@ -146,26 +171,32 @@ void GateLETActor::Construct() {
 /// Save datamDeltaRestricted
 void GateLETActor::SaveData() {
   GateVActor::SaveData();
+   if (mIsFluence || mIsNumberOfHits)
+   {
+	   mNumberOfHitsImage.Write(mLETFilename);
+   }
+   else
+   {
 
+	  if (mIsParallelCalculationEnabled) {
+		mWeightedLETImage.Write(numeratorFileName);
+		mNormalizationLETImage.Write(denominatorFileName);
+	  }
+	  else
+		{ 
+		  GateImageDouble::const_iterator iter_LET = mWeightedLETImage.begin();
+		  GateImageDouble::const_iterator iter_Edep = mNormalizationLETImage.begin();
+		  GateImageDouble::iterator iter_Final = mDoseTrackAverageLETImage.begin();
+		  for(iter_LET = mWeightedLETImage.begin(); iter_LET != mWeightedLETImage.end(); iter_LET++) {
+			if (*iter_Edep == 0.0) *iter_Final = 0.0; // do not divide by zero
+			else *iter_Final = (*iter_LET)/(*iter_Edep);
+			iter_Edep++;
+			iter_Final++;
+		  }
+		  mDoseTrackAverageLETImage.Write(mLETFilename);
 
-  if (mIsParallelCalculationEnabled) {
-    mWeightedLETImage.Write(numeratorFileName);
-    mNormalizationLETImage.Write(denominatorFileName);
-  }
-  else
-    { 
-      GateImageDouble::const_iterator iter_LET = mWeightedLETImage.begin();
-      GateImageDouble::const_iterator iter_Edep = mNormalizationLETImage.begin();
-      GateImageDouble::iterator iter_Final = mDoseTrackAverageLETImage.begin();
-      for(iter_LET = mWeightedLETImage.begin(); iter_LET != mWeightedLETImage.end(); iter_LET++) {
-        if (*iter_Edep == 0.0) *iter_Final = 0.0; // do not divide by zero
-        else *iter_Final = (*iter_LET)/(*iter_Edep);
-        iter_Edep++;
-        iter_Final++;
-      }
-      mDoseTrackAverageLETImage.Write(mLETFilename);
-
-    }
+		}
+	}
 }
 //-----------------------------------------------------------------------------
 
@@ -174,7 +205,11 @@ void GateLETActor::SaveData() {
 void GateLETActor::ResetData() {
   mWeightedLETImage.Fill(0.0);
   mNormalizationLETImage.Fill(0.0);
-
+    if (mIsFluence || mIsNumberOfHits) 
+    {
+	  mNumberOfHitsImage.Fill(0);
+	  mLastHitEventImage.Fill(-1);
+    }
 }
 //-----------------------------------------------------------------------------
 
@@ -182,6 +217,7 @@ void GateLETActor::ResetData() {
 //-----------------------------------------------------------------------------
 void GateLETActor::BeginOfRunAction(const G4Run * r) {
   GateVActor::BeginOfRunAction(r);
+  mCurrentEvent++;
   GateDebugMessage("Actor", 3, "GateLETActor -- Begin of Run\n");
   // ResetData(); // Do no reset here !! (when multiple run);
 }
@@ -279,6 +315,48 @@ void GateLETActor::UserSteppingActionInVoxel(const int index, const G4Step* step
     weightedLET=steplength* zA*zA/energy*weight;
     normalizationVal = steplength;
   }
+    else if (mIsFluence){
+	  //if (index > 8 && index < 10) {
+	  //G4cout<<"lastHit :      "<<mLastHitEventImage.GetValue(index) <<G4endl;
+	  //G4cout<<"mCurrentEvent: "<<mCurrentEvent<<G4endl;
+	  //G4cout<<"mIndex:        "<<index<<G4endl;
+	    if ( mLastHitEventImage.GetValue(index) != mCurrentEvent){
+			//mLETTempImage.AddValue(index, dedx);
+			
+			mLastHitEventImage.SetValue(index, mCurrentEvent);
+			//G4cout<<"lastHit = mCurrentEvent"<<G4endl;
+			//G4cout<<"parentID" << step->GetTrack()->GetParentID()<<G4endl << G4endl;
+			G4ThreeVector momentumDirection=step->GetTrack()->GetMomentumDirection();
+			//double dx=momentumDirection.x();
+			//double dy=momentumDirection.y();
+			double dz=momentumDirection.z();
+			mNumberOfHitsImage.AddValue(index, dz);
+			//G4cout<<"dz: " << dz <<G4endl;
+			//G4cout<<"sq: " << dx*dx*+dy*dy+dz*dz <<G4endl;
+		}
+		
+	}
+	   else if (mIsNumberOfHits){
+	  //if (index > 8 && index < 10) {
+	  //G4cout<<"lastHit :      "<<mLastHitEventImage.GetValue(index) <<G4endl;
+	  //G4cout<<"mCurrentEvent: "<<mCurrentEvent<<G4endl;
+	  //G4cout<<"mIndex:        "<<index<<G4endl;
+	    if ( mLastHitEventImage.GetValue(index) != mCurrentEvent){
+			//mLETTempImage.AddValue(index, dedx);
+			
+			mLastHitEventImage.SetValue(index, mCurrentEvent);
+			//G4cout<<"lastHit = mCurrentEvent"<<G4endl;
+			//G4cout<<"parentID" << step->GetTrack()->GetParentID()<<G4endl << G4endl;
+			//G4ThreeVector momentumDirection=step->GetTrack()->GetMomentumDirection();
+			////double dx=momentumDirection.x();
+			////double dy=momentumDirection.y();
+			//double dz=momentumDirection.z();
+			mNumberOfHitsImage.AddValue(index, 1);
+			//G4cout<<"dz: " << dz <<G4endl;
+			//G4cout<<"sq: " << dx*dx*+dy*dy+dz*dz <<G4endl;
+		}
+		
+	}
   
   if (mIsLETtoWaterEnabled){
     weightedLET = (weightedLET/dedx)*	emcalc->ComputeTotalDEDX(energy, partname->GetParticleName(), "G4_WATER") ;

@@ -58,8 +58,8 @@ void GateSecondaryProductionActor::Construct() {
 
    pFrag = new TH1F("fragments","Fragment production",3,0,1);
    pFrag->SetXTitle("Fragment name");
-   pFrag->SetCanExtend(TH1::kXaxis);
-
+   //pFrag->SetCanExtend(TH1::kXaxis);
+   pFrag->SetBit(TH1::kCanRebin); 
 
    pFrag->Fill("e- Ioni",0.);
 

@@ -73,6 +73,8 @@ protected:
   GateImageDouble mWeightedLETImage;
   GateImageDouble mNormalizationLETImage;
   GateImageDouble mDoseTrackAverageLETImage;
+  GateImageDouble mNumberOfHitsImage;
+  GateImageInt mLastHitEventImage; 
   G4String mLETFilename;
   G4String numeratorFileName;
   G4String denominatorFileName;
@@ -91,7 +93,8 @@ protected:
   bool mIsAverageKinEnergy;
   bool mIsBeamQFactor;
 
-
+  bool mIsFluence;
+  bool mIsNumberOfHits;
 
   bool mIsParallelCalculationEnabled;
 
