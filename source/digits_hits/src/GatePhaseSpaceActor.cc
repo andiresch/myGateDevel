@@ -421,7 +421,7 @@ void GatePhaseSpaceActor::UserSteppingAction(const GateVVolume *, const G4Step *
   {
 	  G4Material* material = step->GetPreStepPoint()->GetMaterial();//->GetName();
 	  G4double energy1 = step->GetPreStepPoint()->GetKineticEnergy();
-	  G4double energy2 = step->GetPostSx`tepPoint()->GetKineticEnergy();
+	  G4double energy2 = step->GetPostStepPoint()->GetKineticEnergy();
 	  G4double energy=(energy1+energy2)/2;
 	  G4ParticleDefinition* partname = step->GetTrack()->GetDefinition();//->GetParticleName();
 	  
