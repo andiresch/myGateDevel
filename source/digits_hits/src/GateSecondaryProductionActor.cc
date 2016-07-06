@@ -103,6 +103,7 @@ void GateSecondaryProductionActor::Construct() {
   pFrag->Fill("F16[0.0]",0.);
   pFrag->Fill("F17[0.0]",0.);
   pFrag->Fill("F18[0.0]",0.);
+
 }
 //-----------------------------------------------------------------------------
 
