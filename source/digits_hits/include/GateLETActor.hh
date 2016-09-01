@@ -97,6 +97,8 @@ protected:
   bool mIsNumberOfHits;
 
   bool mIsParallelCalculationEnabled;
+  
+  bool mIsSpecialThingOnlySecProtons;
 
   G4EmCalculator * emcalc;
 };

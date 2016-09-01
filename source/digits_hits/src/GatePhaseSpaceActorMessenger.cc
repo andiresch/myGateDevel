@@ -83,7 +83,7 @@ void GatePhaseSpaceActorMessenger::BuildCommands(G4String base)
   pEnableElectronicDEDXCmd->SetGuidance(guidance);
   pEnableElectronicDEDXCmd->SetParameterName("State",false);
   
-  bb = base+"/enableTotalDEDX";
+  bb = base+"/enableTotalDEDX"; 
   pEnableTotalDEDXCmd = new G4UIcmdWithABool(bb,this);
   guidance = "Save total energy loss de/dx  of particles in the phase space file.";
   pEnableTotalDEDXCmd->SetGuidance(guidance);

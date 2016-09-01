@@ -36,7 +36,7 @@ GateLETActor::GateLETActor(G4String name, G4int depth):
   mIsFluence=false;
   mIsNumberOfHits=false;
   
-
+ mIsSpecialThingOnlySecProtons = false;
   mIsLETtoWaterEnabled = false;
   mIsParallelCalculationEnabled = false;
   mAveragingType = "DoseAverage";
@@ -81,6 +81,7 @@ void GateLETActor::Construct() {
   else if (mAveragingType == "beamQFactor"){mIsBeamQFactor = true;}
   else if (mAveragingType == "Fluence"){mIsFluence = true;}
   else if (mAveragingType == "NumberOfHits"){mIsNumberOfHits=true;}
+  else if (mAveragingType == "DoseAverageOnlySecProtons"){mIsDoseAverageDEDX=true; mIsSpecialThingOnlySecProtons=true;}
   else {GateError("The LET averaging Type" << GetObjectName()
                   << " is not valid ...\n Please select 'DoseAveraged' or 'TrackAveraged')");}
 
@@ -248,7 +249,13 @@ void GateLETActor::UserSteppingActionInVoxel(const int index, const G4Step* step
   const double edep = step->GetTotalEnergyDeposit()*weight;
 
   double steplength = step->GetStepLength();
-
+  if ( mIsSpecialThingOnlySecProtons )
+  {
+	if (step->GetTrack()->GetTrackID()==1 )
+	{
+		return;
+	}
+  }
   //if no energy is deposited or energy is deposited outside image => do nothing
   if (edep == 0) {
     GateDebugMessage("Actor", 5, "GateLETActor edep == 0 : do nothing\n");
@@ -258,7 +265,10 @@ void GateLETActor::UserSteppingActionInVoxel(const int index, const G4Step* step
     GateDebugMessage("Actor", 5, "GateLETActor pixel index < 0 : do nothing\n");
     return;
   }
-
+  //if ( step->GetTrack()->GetDefinition()->GetAtomicNumber() > 1)
+  //{
+	  //G4cout << "Atomic number greater than 1: " << step->GetTrack()->GetDefinition()->GetAtomicNumber()<<G4endl;
+   //}
   const G4Material* material = step->GetPreStepPoint()->GetMaterial();//->GetName();
   double energy1 = step->GetPreStepPoint()->GetKineticEnergy();
   double energy2 = step->GetPostStepPoint()->GetKineticEnergy();
