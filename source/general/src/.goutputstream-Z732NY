@@ -20,6 +20,8 @@ See GATE/LICENSE.txt for further details
 
 // std
 #include <iomanip>
+//AResch
+#include <ctime>
 
 // gate
 #include "GateVImage.hh"
@@ -27,6 +29,7 @@ See GATE/LICENSE.txt for further details
 #include "GateMachine.hh"
 #include "GateMHDImage.hh"
 #include "GateInterfileHeader.hh"
+
 
 // root
 #ifdef G4ANALYSIS_USE_ROOT
@@ -50,25 +53,6 @@ GateVImage::GateVImage() {
 
 //-----------------------------------------------------------------------------
 GateVImage::~GateVImage() {
-}
-//-----------------------------------------------------------------------------
-
-//A.Resch
-//-----------------------------------------------------------------------------
-void GateVImage::SetResolutionAndHalfSizeCylinder(G4ThreeVector r, G4ThreeVector h, G4ThreeVector position) {
-  //resolution = r;
-  //halfSize = h;
-  G4cout<<"we come here: do we???" <<G4endl;
-  mPosition = position;
-   SetResolutionAndHalfSizeCylinder(r,h); //UpdateSizesFromResolutionAndHalfSize();
-}
-//-----------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------
-void GateVImage::SetResolutionAndHalfSizeCylinder(G4ThreeVector r, G4ThreeVector h) {
-  resolution = r;
-  halfSize = h;
-  UpdateSizesFromResolutionAndHalfSizeCylinder();
 }
 //-----------------------------------------------------------------------------
 
@@ -124,8 +108,8 @@ G4ThreeVector GateVImage::GetVoxelCenterFromCoordinates(G4ThreeVector p) const{
 }
 //-----------------------------------------------------------------------------
 
-
-// * Original
+/*
+ * Original
  
 //-----------------------------------------------------------------------------
 int GateVImage::GetIndexFromPosition(const G4ThreeVector& position) const{
@@ -160,35 +144,20 @@ int GateVImage::GetIndexFromPosition(const G4ThreeVector& position) const{
   return (ix+iy*lineSize+iz*planeSize);
 }
 //-----------------------------------------------------------------------------
-
+*/
 
 /*
  * A.Resch 28.09.2016
  */
 //-----------------------------------------------------------------------------
-int GateVImage::GetIndexFromPositionCylindricalCS(const G4ThreeVector& position) const{
+int GateVImage::GetIndexFromPosition(const G4ThreeVector& position) const{
   //std::cout.precision(20);
   GateDebugMessage("Image",9," GetIndex for " << position << Gateendl);
   
 	double rSq = position.x()*position.x() + position.y()*position.y();
-    //double rPosition = std::sqrt(rSq);
-    
-    // ------------------
-    // calculating the square root of rSq using Babylonian Method
-    // equal to std::sqrt(rSq)
-	double r1 = rSq / 2;
-	double r2 = r1+(rSq-r1)/2;
-	double abortCriterion = voxelSize.x()/100;
-	while (std::abs(r2 - r1) > abortCriterion) {
-		 r2 = (r1 + r2) / 2;
-		 r1 = rSq / r2;
-		//cout << "r1: "<< r1<<endl;
-	}
-   // ------------------- end sqrt
-   
+    double rPosition = std::sqrt(rSq);
   // compute position in voxels (non-integer)
-  double x = (r1)/voxelSize.x();
-  //if ( (floor(rPosition) - floor(r1) )>1){G4cout<< "sqrt problem!"<<G4endl;}
+  double x = (rPosition+halfSize.x())/voxelSize.x();
   double y = (position.y()+halfSize.y())/voxelSize.y();
   double z = (position.z()+halfSize.z())/voxelSize.z();
   GateDebugMessage("Image",9," pos in voxel = " << x << " " << y << " " << z << Gateendl);
@@ -199,7 +168,6 @@ int GateVImage::GetIndexFromPositionCylindricalCS(const G4ThreeVector& position)
    
     //G4cout<< "halfSize.x() " << halfSize.x() <<G4endl;
     //G4cout<< "resolution.x() " << resolution.x() <<G4endl;
-    //G4cout << "r   = " << r1 <<G4endl;
     //G4cout<< "kCarTolerance " << kCarTolerance*0.5 <<G4endl;
   // Special case for right borders  :
   if (fabs(x - resolution.x()) <= kCarTolerance*0.5) x -= 2*kCarTolerance;
@@ -215,7 +183,14 @@ int GateVImage::GetIndexFromPositionCylindricalCS(const G4ThreeVector& position)
    // babylonian method
    //int num = 4567;
 
+//int r1 = num / 2;
+//int r2 = 2;
 
+//while (std::abs(r2 - r1) > 1) {
+     //r2 = (r1 + r2) / 2;
+     //r1 = num / r2;
+//}
+   
   // to floor values
   int ix = (int)floor(x);
   int iy = (int)floor(y);
@@ -223,7 +198,7 @@ int GateVImage::GetIndexFromPositionCylindricalCS(const G4ThreeVector& position)
 
     
   // Check if not out of the volume ... (should not append with 'middle' ?)
-  if (ix*2 >= resolution.x()) return -1; //A.Resch /2 because radius is only half of diameter
+  if (ix >= resolution.x()) return -1;
   if (iy >= resolution.y()) return -1;
   if (iz >= resolution.z()) return -1;
   if (ix < 0) return -1;
@@ -520,32 +495,6 @@ G4ThreeVector GateVImage::GetVoxelCornerFromCoordinates(G4ThreeVector c) const{
 
 
 //-----------------------------------------------------------------------------
-void GateVImage::UpdateSizesFromResolutionAndHalfSizeCylinder() {
-  // INPUT  : resolution + halfSize
-  // OUTPUT : nbOfValues, size, voxelSize, lineSize, planeSize
-  nbOfValues = (int)lrint(resolution.x()*resolution.y()*resolution.z());
-  size = G4ThreeVector(halfSize.x()*1.0,
-		       halfSize.y()*2.0,
-		       halfSize.z()*2.0);
-  G4cout <<"size.x "<< size.x()<< G4endl;
-  G4cout <<"size.y "<< size.y()<< G4endl;
-  voxelSize = G4ThreeVector(size.x()/resolution.x(),
-			    size.y()/resolution.y(),
-			    size.z()/resolution.z());
-  G4cout <<"voxelSize.x "<< voxelSize.x()<< G4endl;
-  G4cout <<"voxelSize.y "<< voxelSize.y()<< G4endl;
-  voxelVolume = voxelSize.x()*voxelSize.y()*voxelSize.z();
-  halfSizeMinusVoxelCenter =
-    G4ThreeVector(-halfSize.x()+voxelSize.x()/2.0,
-		  -halfSize.y()+voxelSize.y()/2.0,
-		  -halfSize.z()+voxelSize.z()/2.0);
-  lineSize = (int)lrint(resolution.x());
-  planeSize = (int)lrint(resolution.x()*resolution.y());
-}
-//-----------------------------------------------------------------------------
-
-
-//-----------------------------------------------------------------------------
 void GateVImage::UpdateSizesFromResolutionAndHalfSize() {
   // INPUT  : resolution + halfSize
   // OUTPUT : nbOfValues, size, voxelSize, lineSize, planeSize
@@ -553,13 +502,9 @@ void GateVImage::UpdateSizesFromResolutionAndHalfSize() {
   size = G4ThreeVector(halfSize.x()*2.0,
 		       halfSize.y()*2.0,
 		       halfSize.z()*2.0);
-  G4cout <<"size.x "<< size.x()<< G4endl;
-  G4cout <<"size.y "<< size.y()<< G4endl;
   voxelSize = G4ThreeVector(size.x()/resolution.x(),
 			    size.y()/resolution.y(),
 			    size.z()/resolution.z());
-  G4cout <<"voxelSize.x "<< voxelSize.x()<< G4endl;
-  G4cout <<"voxelSize.y "<< voxelSize.y()<< G4endl;
   voxelVolume = voxelSize.x()*voxelSize.y()*voxelSize.z();
   halfSizeMinusVoxelCenter =
     G4ThreeVector(-halfSize.x()+voxelSize.x()/2.0,
@@ -576,7 +521,7 @@ void GateVImage::UpdateSizesFromResolutionAndVoxelSize() {
   // INPUT  : resolution + VoxelSize
   // OUTPUT : nbOfValues, size, HalfSize, lineSize, planeSize
   nbOfValues = (int)lrint(resolution.x()*resolution.y()*resolution.z());
-G4cout <<"here we should not be. voxelSize.x " << voxelSize.x()<<G4endl<<G4endl;
+
   size = G4ThreeVector ( resolution.x() * voxelSize.x(),
 			 resolution.y() * voxelSize.y(),
 			 resolution.z() * voxelSize.z() );

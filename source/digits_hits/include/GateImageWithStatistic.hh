@@ -32,6 +32,7 @@ class GateImageWithStatistic
 
   // void SetLastHitEventImage(GateImage * lastHitEventImage) { mLastHitEventImage = lastHitEventImage; }
   void SetResolutionAndHalfSize(const G4ThreeVector & resolution, const G4ThreeVector & halfSize);
+  void SetResolutionAndHalfSizeCylinder(const G4ThreeVector & resolution, const G4ThreeVector & halfSize, const G4ThreeVector & position);
   void SetResolutionAndHalfSize(const G4ThreeVector & resolution, const G4ThreeVector & halfSize, const G4ThreeVector & position);
   void Allocate();
   void Reset(double val=0.0);
@@ -52,6 +53,7 @@ class GateImageWithStatistic
 
   void SetFilename(G4String f);
   void SaveData(int numberOfEvents, bool normalise=false);
+  void SaveData(bool normaliseCylindricalArea);
 
   inline G4double GetVoxelVolume() const { return mValueImage.GetVoxelVolume(); }
 

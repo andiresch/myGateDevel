@@ -91,6 +91,30 @@ void GateImageWithStatistic::SetResolutionAndHalfSize(const G4ThreeVector & reso
 }
 //-----------------------------------------------------------------------------
 
+// A.Resch
+//-----------------------------------------------------------------------------
+void GateImageWithStatistic::SetResolutionAndHalfSizeCylinder(const G4ThreeVector & resolution,
+						      const G4ThreeVector & halfSize, const G4ThreeVector & position)  {
+
+  mValueImage.SetResolutionAndHalfSize(resolution, halfSize, position);
+  if (mIsUncertaintyImageEnabled) {
+    mUncertaintyImage.SetResolutionAndHalfSize(resolution, halfSize, position);
+    if (!mIsSquaredImageEnabled) {
+      mSquaredImage.SetResolutionAndHalfSize(resolution, halfSize, position);
+      mTempImage.SetResolutionAndHalfSize(resolution, halfSize, position);
+      mScaledSquaredImage.SetResolutionAndHalfSize(resolution, halfSize, position);
+    }
+  }
+  if (mIsSquaredImageEnabled) {
+    mSquaredImage.SetResolutionAndHalfSize(resolution, halfSize, position);
+    mTempImage.SetResolutionAndHalfSize(resolution, halfSize, position);
+    mScaledSquaredImage.SetResolutionAndHalfSize(resolution, halfSize, position);
+  }
+
+  mScaledValueImage.SetResolutionAndHalfSize(resolution, halfSize, position);
+}
+//-----------------------------------------------------------------------------
+
 
 //-----------------------------------------------------------------------------
 void GateImageWithStatistic::SetResolutionAndHalfSize(const G4ThreeVector & resolution,
@@ -272,6 +296,64 @@ void GateImageWithStatistic::SaveData(int numberOfEvents, bool normalise) {
 
 }
 //-----------------------------------------------------------------------------
+
+
+////-----------------------------------------------------------------------------
+//void GateImageWithStatistic::SaveData(bool normaliseCylindricalArea) {
+
+  //// Filename
+  ////if (!mOverWriteFilesFlag) {
+    ////mFilename = GetSaveCurrentFilename(mInitialFilename);
+    ////mSquaredFilename = GetSaveCurrentFilename(mSquaredInitialFilename);
+    ////mUncertaintyFilename = GetSaveCurrentFilename(mUncertaintyInitialFilename);
+  ////}
+
+  ////static double factor=1.0;
+  ////if (mIsSquaredImageEnabled || mIsUncertaintyImageEnabled) {UpdateImage();}
+
+  ////if (mIsValuesMustBeScaled == true) {
+    //////DD(mScaleFactor);
+    ////factor = mScaleFactor;
+  ////}
+
+  ////if (normalise) {
+    ////mIsValuesMustBeScaled = true;
+    ////double sum = 0.0;
+    ////double max = 0.0;
+    ////GateImageDouble::const_iterator pi = mValueImage.begin();
+    ////GateImageDouble::const_iterator pe = mValueImage.end();
+    ////while (pi != pe) {
+      ////if (*pi > max) max = *pi;
+      ////sum += *pi*factor;
+      ////++pi;
+    ////}
+    ////if (mNormalizedToMax) SetScaleFactor(factor*1.0/max);
+    ////if (mNormalizedToIntegral) SetScaleFactor(factor*1.0/sum);
+  ////}
+
+  ////GateMessage("Actor", 2, "Save " << mFilename << " with scaling = "
+	      ////<< mScaleFactor << "(" << mIsValuesMustBeScaled << ")\n");
+  //G4ThreeVector  voxSize = mValueImage.GetVoxelSize();
+  //G4ThreeVector  resolut = mValueImage.GetResolution();
+  //if (!normaliseCylindricalArea) mValueImage.Write(mFilename);
+  //else {
+	  //int n = 1;
+    ////GateImageDouble::iterator po = mScaledValueImage.begin();
+    //GateImageDouble::iterator pi = mValueImage.begin();
+    //GateImageDouble::const_iterator pe = mValueImage.end();
+    //while (pi != pe) {
+      //*pi = (M_PI)*voxSize.x()*voxSize.x()*(2*n-1);
+      //n++;
+      //if (n == resolut.x()) { n =1; }
+      //++pi;
+    //}
+    //mScaledValueImage.Write(mFilename);
+    ////SetScaleFactor(factor);
+  //}
+
+
+//}
+////-----------------------------------------------------------------------------
 
 
 //-----------------------------------------------------------------------------

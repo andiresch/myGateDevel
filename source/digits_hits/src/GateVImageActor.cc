@@ -136,15 +136,23 @@ void GateVImageActor::Construct()
   GateVActor::Construct();
 
   if (!mHalfSizeIsSet){
+		  G4cout<< "===========================================================================" <<G4endl<<G4endl<<G4endl<<G4endl<<G4endl<<G4endl<<G4endl;
+		  G4cout<< "mHalfsizeIsNotSet" <<G4endl<<G4endl<<G4endl<<G4endl<<G4endl<<G4endl<<G4endl;
 	  if (mResolutionIsSet && mVoxelSizeIsSet){
 		  mHalfSize = KroneckerProduct(mResolution, mVoxelSize)/2;
+		  G4cout<< "===========================================================================" <<G4endl<<G4endl<<G4endl<<G4endl<<G4endl<<G4endl<<G4endl;
+		  G4cout<< "YES" <<G4endl<<G4endl<<G4endl<<G4endl<<G4endl<<G4endl<<G4endl;
 	  }
 	  else {
 		  mHalfSize = ComputeBoundingBox(mVolume->GetLogicalVolume()->GetSolid());
+		  G4cout<< "===========================================================================" <<G4endl<<G4endl<<G4endl<<G4endl<<G4endl<<G4endl<<G4endl;
+		  G4cout<< "No" <<G4endl<<"mHalfsize"<< mHalfSize<<G4endl<<G4endl<<G4endl<<G4endl<<G4endl;
 	  }
 	  mHalfSizeIsSet = true;
   }
   else {
+		  G4cout<< "===========================================================================" <<G4endl<<G4endl<<G4endl<<G4endl<<G4endl<<G4endl<<G4endl;
+		  G4cout<< "mHalfSizeIsSet" <<G4endl<<G4endl<<G4endl<<G4endl<<G4endl<<G4endl<<G4endl;
 	  if (mResolutionIsSet && mVoxelSizeIsSet) {
 		  GateError("GateVImageActor -- Construct: Please give a combination of two between" <<
 				    " the size, the resolution and the voxelsize (not all) for the sensor");
@@ -159,17 +167,21 @@ void GateVImageActor::Construct()
   GateMessage("Actor", 3, "GateVImageActor -- Construct: mHalfSize of parent = " << ComputeBoundingBox(mVolume->GetLogicalVolume()->GetSolid()) << Gateendl);
 
   if (mResolutionIsSet) {
-    mVoxelSize.setX(mHalfSize.x()*2./mResolution.x());
+	  G4cout<< "===========================================================================" <<G4endl<<G4endl<<G4endl<<G4endl<<G4endl<<G4endl<<G4endl;
+		  G4cout<< "resolutionIsset" <<G4endl<<G4endl<<G4endl<<G4endl<<G4endl<<G4endl<<G4endl;
+    mVoxelSize.setX(mHalfSize.x()*2./mResolution.x()); // A.Resch 
+    G4cout<< "voxelSize.x"<< mVoxelSize <<G4endl;
     mVoxelSize.setY(mHalfSize.y()*2./mResolution.y());
     mVoxelSize.setZ(mHalfSize.z()*2./mResolution.z());
   }
 
   if (mVoxelSizeIsSet) {
-    mResolution.setX(std::max(1, (int)floor(mHalfSize.x()*2/mVoxelSize.x())));
+    mResolution.setX(std::max(1, (int)floor(mHalfSize.x()*1/mVoxelSize.x())));
     mResolution.setY(std::max(1, (int)floor(mHalfSize.y()*2/mVoxelSize.y())));
     mResolution.setZ(std::max(1, (int)floor(mHalfSize.z()*2/mVoxelSize.z())));
   }
-
+  G4cout<< "mResolution.x"<< mResolution <<G4endl;
+   G4cout<< "voxelSize.x"<< mVoxelSize <<G4endl;
   mImage.SetResolutionAndVoxelSize(mResolution, mVoxelSize);
 
   // Update position with parent ...
@@ -425,6 +437,21 @@ int GateVImageActor::GetIndexFromStepPosition(const GateVVolume * v, const G4Ste
     G4ThreeVector position = prePosition + x*direction;
     GateDebugMessage("Step", 4, "GateVImageActor -- GetIndexFromStepPosition:\tRandomStep = " << position << Gateendl);
     index = mImage.GetIndexFromPosition(position);
+  }
+ 
+  if (mStepHitType == RandomStepHitTypeCylindricalCS) {
+    G4double x = G4UniformRand();
+    GateDebugMessage("Step", 4, "GateVImageActor -- GetIndexFromStepPosition:\tx         = " << x << Gateendl);
+    G4ThreeVector direction = postPosition-prePosition;
+    GateDebugMessageCont("Step", 4, "GateVImageActor -- GetIndexFromStepPosition:\tdirection = " << direction << Gateendl);
+    //normalize(direction);
+    //GateDebugMessageCont("Step", 4, "\tdirection = " << direction << Gateendl);
+    G4ThreeVector position = prePosition + x*direction;
+    GateDebugMessage("Step", 4, "GateVImageActor -- GetIndexFromStepPosition:\tRandomStep = " << position << Gateendl);
+    index = mImage.GetIndexFromPositionCylindricalCS(position);
+  }
+  if (mStepHitType == PostStepHitTypeCylindricalCS) {
+    index = mImage.GetIndexFromPositionCylindricalCS(postPosition);
   }
 
   GateDebugMessage("Step", 4, "GateVImageActor -- GetIndexFromStepPosition:\tVoxel index = " << index << Gateendl);
