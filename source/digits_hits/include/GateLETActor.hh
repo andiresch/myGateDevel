@@ -42,6 +42,7 @@ public:
   virtual void Construct();
 
   void SetLETtoWater(bool b) { mIsLETtoWaterEnabled = b; }
+  void SetCylindricalCS(bool b) { mIsCylindricalCSEnabled = b; }
   void SetParallelCalculation(bool b) { mIsParallelCalculationEnabled = b; }
   void SetLETType(G4String s) { mAveragingType = s; }
 
@@ -66,6 +67,8 @@ protected:
   GateLETActor(G4String name, G4int depth=0);
   GateLETActorMessenger * pMessenger;
 
+  //StepHitType mUserStepHitType;
+  
   int mCurrentEvent;
   bool mIsLETtoWaterEnabled;
   G4String mAveragingType;
@@ -81,6 +84,8 @@ protected:
   G4String sigmaFilename;
   
 
+  bool mIsCylindricalCSEnabled;
+  
   bool mIsDoseAveraged;
   bool mIsTrackAveraged;
 

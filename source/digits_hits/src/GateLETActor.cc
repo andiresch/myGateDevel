@@ -32,7 +32,7 @@ GateLETActor::GateLETActor(G4String name, G4int depth):
   mIsDoseAverageDEDX=false;
   mIsDoseAverageEdepDX=false;
   mIsAverageKinEnergy=false;
-
+mIsCylindricalCSEnabled = false;
   mIsFluence=false;
   mIsNumberOfHits=false;
   
@@ -151,8 +151,13 @@ void GateLETActor::Construct() {
   // Warning: for the moment we force to PostStepHitType. This is ok
   // (slightly faster) if voxel sizes are the same between the
   // let-actor and the attached voxelized volume. But wrong if not.
-  mStepHitType = PostStepHitType;// RandomStepHitType; // Warning
-
+  if (!mIsCylindricalCSEnabled)
+  { mStepHitType = PostStepHitType;// RandomStepHitType; // Warning
+  }
+  else
+{
+  mStepHitType = PostStepHitTypeCylindricalCS;// RandomStepHitType; // Warning
+}
   // Print information
   GateMessage("Actor", 1,
               "\tLET Actor      = '" << GetObjectName() << Gateendl <<

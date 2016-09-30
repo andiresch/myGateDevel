@@ -33,6 +33,7 @@ protected:
 
   
   G4UIcmdWithABool * pSetLETtoWaterCmd;
+  G4UIcmdWithABool * pSetCylindricalCSCmd;
   G4UIcmdWithAString * pAveragingTypeCmd; 
   G4UIcmdWithABool * pSetParallelCalculationCmd;
 };
