@@ -178,7 +178,7 @@ int GateVImage::GetIndexFromPositionCylindricalCS(const G4ThreeVector& position)
     // equal to std::sqrt(rSq)
 	double r1 = rSq / 2;
 	double r2 = r1+(rSq-r1)/2;
-	double abortCriterion = voxelSize.x()/10;
+	double abortCriterion = voxelSize.x()/100;
 	while (std::abs(r2 - r1) > abortCriterion) {
 		 r2 = (r1 + r2) / 2;
 		 r1 = rSq / r2;
@@ -218,7 +218,7 @@ int GateVImage::GetIndexFromPositionCylindricalCS(const G4ThreeVector& position)
 
   // to floor values
   int ix = (int)floor(x);
-  int iy = 1;// (int)floor(y);
+  //int iy =  0;// (int)floor(y);
   int iz = (int)floor(z);
 
     
@@ -230,9 +230,10 @@ int GateVImage::GetIndexFromPositionCylindricalCS(const G4ThreeVector& position)
   //if (iy < 0) return -1;
   if (iz < 0) return -1;
   GateDebugMessage("Image",9,ix << " " << iy << " " << iz << Gateendl);
+  //G4cout<< "iy  " << iy <<G4endl;
   //G4cout<< "ix  " << ix <<G4endl;
  //G4cout<< "return ind " << ix+iy*lineSize+iz*planeSize <<G4endl;
-  return (ix+iy*lineSize+iz*planeSize);
+  return (ix+iz*planeSize);
 }
 //-----------------------------------------------------------------------------
 

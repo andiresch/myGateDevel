@@ -32,7 +32,7 @@ GateLETActor::GateLETActor(G4String name, G4int depth):
   mIsDoseAverageDEDX=false;
   mIsDoseAverageEdepDX=false;
   mIsAverageKinEnergy=false;
-mIsCylindricalCSEnabled = false;
+ mIsCylindricalCSEnabled = false;
   mIsFluence=false;
   mIsNumberOfHits=false;
   

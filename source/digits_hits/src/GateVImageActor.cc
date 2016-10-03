@@ -271,6 +271,8 @@ void GateVImageActor::SetStepHitType(G4String t)
   if (t == "post")   { mStepHitType = PostStepHitType; return; }
   if (t == "middle") { mStepHitType = MiddleStepHitType; return; }
   if (t == "random") { mStepHitType = RandomStepHitType; return; }
+  if (t == "randomCylindricalCS") { mStepHitType = RandomStepHitTypeCylindricalCS; return;}
+  if (t == "postCylindricalCS") { mStepHitType = PostStepHitTypeCylindricalCS; return;}
 
   GateError("GateVImageActor -- SetStepHitType: StepHitType is set to '" << t << "' while I only know 'pre', 'post', 'random' or 'middle'.");
 }
