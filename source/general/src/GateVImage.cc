@@ -178,7 +178,7 @@ int GateVImage::GetIndexFromPositionCylindricalCS(const G4ThreeVector& position)
     // equal to std::sqrt(rSq)
 	double r1 = rSq / 2;
 	double r2 = r1+(rSq-r1)/2;
-	double abortCriterion = voxelSize.x()/100;
+	double abortCriterion = voxelSize.x()/10;
 	while (std::abs(r2 - r1) > abortCriterion) {
 		 r2 = (r1 + r2) / 2;
 		 r1 = rSq / r2;
@@ -189,7 +189,7 @@ int GateVImage::GetIndexFromPositionCylindricalCS(const G4ThreeVector& position)
   // compute position in voxels (non-integer)
   double x = (r1)/voxelSize.x();
   //if ( (floor(rPosition) - floor(r1) )>1){G4cout<< "sqrt problem!"<<G4endl;}
-  double y = (position.y()+halfSize.y())/voxelSize.y();
+  //double y = (position.y()+halfSize.y())/voxelSize.y();
   double z = (position.z()+halfSize.z())/voxelSize.z();
   GateDebugMessage("Image",9," pos in voxel = " << x << " " << y << " " << z << Gateendl);
     //G4cout<< "=== " <<G4endl;
@@ -203,7 +203,7 @@ int GateVImage::GetIndexFromPositionCylindricalCS(const G4ThreeVector& position)
     //G4cout<< "kCarTolerance " << kCarTolerance*0.5 <<G4endl;
   // Special case for right borders  :
   if (fabs(x - resolution.x()) <= kCarTolerance*0.5) x -= 2*kCarTolerance;
-  if (fabs(y - resolution.y()) <= kCarTolerance*0.5) y -= 2*kCarTolerance;
+  //if (fabs(y - resolution.y()) <= kCarTolerance*0.5) y -= 2*kCarTolerance;
   if (fabs(z - resolution.z()) <= kCarTolerance*0.5) z -= 2*kCarTolerance;
    
    
@@ -218,16 +218,16 @@ int GateVImage::GetIndexFromPositionCylindricalCS(const G4ThreeVector& position)
 
   // to floor values
   int ix = (int)floor(x);
-  int iy = (int)floor(y);
+  int iy = 1;// (int)floor(y);
   int iz = (int)floor(z);
 
     
   // Check if not out of the volume ... (should not append with 'middle' ?)
   if (ix*2 >= resolution.x()) return -1; //A.Resch /2 because radius is only half of diameter
-  if (iy >= resolution.y()) return -1;
+  //if (iy >= resolution.y()) return -1;
   if (iz >= resolution.z()) return -1;
   if (ix < 0) return -1;
-  if (iy < 0) return -1;
+  //if (iy < 0) return -1;
   if (iz < 0) return -1;
   GateDebugMessage("Image",9,ix << " " << iy << " " << iz << Gateendl);
   //G4cout<< "ix  " << ix <<G4endl;
@@ -527,13 +527,13 @@ void GateVImage::UpdateSizesFromResolutionAndHalfSizeCylinder() {
   size = G4ThreeVector(halfSize.x()*1.0,
 		       halfSize.y()*2.0,
 		       halfSize.z()*2.0);
-  G4cout <<"size.x "<< size.x()<< G4endl;
-  G4cout <<"size.y "<< size.y()<< G4endl;
+  //G4cout <<"size.x "<< size.x()<< G4endl;
+  //G4cout <<"size.y "<< size.y()<< G4endl;
   voxelSize = G4ThreeVector(size.x()/resolution.x(),
 			    size.y()/resolution.y(),
 			    size.z()/resolution.z());
-  G4cout <<"voxelSize.x "<< voxelSize.x()<< G4endl;
-  G4cout <<"voxelSize.y "<< voxelSize.y()<< G4endl;
+  //G4cout <<"voxelSize.x "<< voxelSize.x()<< G4endl;
+  //G4cout <<"voxelSize.y "<< voxelSize.y()<< G4endl;
   voxelVolume = voxelSize.x()*voxelSize.y()*voxelSize.z();
   halfSizeMinusVoxelCenter =
     G4ThreeVector(-halfSize.x()+voxelSize.x()/2.0,
@@ -553,13 +553,13 @@ void GateVImage::UpdateSizesFromResolutionAndHalfSize() {
   size = G4ThreeVector(halfSize.x()*2.0,
 		       halfSize.y()*2.0,
 		       halfSize.z()*2.0);
-  G4cout <<"size.x "<< size.x()<< G4endl;
-  G4cout <<"size.y "<< size.y()<< G4endl;
+  //G4cout <<"size.x "<< size.x()<< G4endl;
+  //G4cout <<"size.y "<< size.y()<< G4endl;
   voxelSize = G4ThreeVector(size.x()/resolution.x(),
 			    size.y()/resolution.y(),
 			    size.z()/resolution.z());
-  G4cout <<"voxelSize.x "<< voxelSize.x()<< G4endl;
-  G4cout <<"voxelSize.y "<< voxelSize.y()<< G4endl;
+  //G4cout <<"voxelSize.x "<< voxelSize.x()<< G4endl;
+  //G4cout <<"voxelSize.y "<< voxelSize.y()<< G4endl;
   voxelVolume = voxelSize.x()*voxelSize.y()*voxelSize.z();
   halfSizeMinusVoxelCenter =
     G4ThreeVector(-halfSize.x()+voxelSize.x()/2.0,
@@ -576,7 +576,7 @@ void GateVImage::UpdateSizesFromResolutionAndVoxelSize() {
   // INPUT  : resolution + VoxelSize
   // OUTPUT : nbOfValues, size, HalfSize, lineSize, planeSize
   nbOfValues = (int)lrint(resolution.x()*resolution.y()*resolution.z());
-G4cout <<"here we should not be. voxelSize.x " << voxelSize.x()<<G4endl<<G4endl;
+//G4cout <<"here we should not be. voxelSize.x " << voxelSize.x()<<G4endl<<G4endl;
   size = G4ThreeVector ( resolution.x() * voxelSize.x(),
 			 resolution.y() * voxelSize.y(),
 			 resolution.z() * voxelSize.z() );
