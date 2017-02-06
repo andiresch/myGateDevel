@@ -18,7 +18,7 @@
 // g4
 #include <G4EmCalculator.hh>
 #include <G4VoxelLimits.hh>
-#include <G4NistManager.hh>
+#include <G4NistManager.hh> 
 #include <G4PhysicalConstants.hh>
 
 //-----------------------------------------------------------------------------
@@ -349,7 +349,7 @@ void GateDoseActor::UserSteppingActionInVoxel(const int index, const G4Step* ste
       double cut = DBL_MAX;
       cut=1;
       G4String material = step->GetPreStepPoint()->GetMaterial()->GetName();
-      double Energy = step->GetPreStepPoint()->GetKineticEnergy();
+      //double Energy = step->GetPreStepPoint()->GetKineticEnergy();
       G4String PartName = step->GetTrack()->GetDefinition()->GetParticleName();
       //double DEDX=0, DEDX_Water=0;
 
@@ -383,6 +383,7 @@ void GateDoseActor::UserSteppingActionInVoxel(const int index, const G4Step* ste
 		doseToWater = 0.0;
 	}
 	
+   }
     //if ( partnameAR->GetPDGEncoding() != 2212 && PartName!= "e-" &&PartName!= "e+" )
     //{
 		//G4cout<< "name: "<<PartName<< " pdg code:" <<  partnameAR->GetPDGEncoding() <<G4endl;
