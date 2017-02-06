@@ -36,6 +36,7 @@ GateCrossSectionProductionActor::GateCrossSectionProductionActor(G4String name, 
 
   m_IsO15 = false;
   m_IsC11 = true;
+  
 
 
   A_12 =12.0;
@@ -190,6 +191,7 @@ void GateCrossSectionProductionActor::Construct() {
   GateDebugMessageInc("Actor", 4, "GateCrossSectionProductionActor -- Construct - begin\n");
   GateVImageActor::Construct();
 
+  
   // Enable callbacks
   G4cout << "GateCrossSectionProductionActor::Construct\n";
   EnableBeginOfRunAction(true);
@@ -283,6 +285,77 @@ void GateCrossSectionProductionActor::Construct() {
 }
 //-----------------------------------------------------------------------------
 
+// ---- Get Source Direction
+G4ThreeVector GateCrossSectionProductionActor::TestSource(GateSourceMgr * sm)
+  {
+	  G4ThreeVector sourceDirection = G4ThreeVector(0,0,0);
+  if (sm->GetNumberOfSources() == 0)
+    {
+    GateError("Error: no source set.");
+    }
+  if (sm->GetNumberOfSources() != 1)
+    {
+    GateWarning("Several sources found, we consider the first one.");
+    }
+  mSource = sm->GetSource(0);
+  mSourceType = mSource->GetAngDist()->GetDistType();
+  //G4cout<<"sourceType 0: "<<mSourceType<<G4endl;
+  //G4cout<<"pos distr Type 0: "<<mSource->GetPosDist()->GetPosDisType()<<G4endl;
+  //G4cout<<"number of sources: "<<sm->GetNumberOfSources()<<G4endl;
+  if (mSourceType == "")
+    {
+    GateError("Error: type of source not defined.");
+    }
+  /* Check Point: dosen't work if rot1 != (1,0,0) or  rot2 != (0,1,0) */
+  if (mSourceType == "planar" || mSourceType == "point")
+    { 
+		//G4cout<<"Yeah yeah 111"<< G4endl;
+		sourceDirection = mSource->GetAngDist()->GetFocusPointCopy();
+		//G4cout<<"msource .x h:"<< sourceDirection.getX()<< G4endl;
+		//G4cout<<"msource .y h:"<< sourceDirection.getY()<< G4endl;
+		//G4cout<<"msource .z h:"<< sourceDirection.getZ()<< G4endl;
+    if (mSource->getRotX().getX() != 1
+        || mSource->getRotX().getY() != 0
+        || mSource->getRotX().getZ() != 0
+        || mSource->getRotY().getX() != 0
+        || mSource->getRotY().getY() != 1
+        || mSource->getRotY().getZ() != 0)
+      {
+      GateError("Error: forced detection only supports plane source without rotations");
+      }
+    //if (mSource->GetPosDist()->GetPosDisType() == "Point")
+      //{
+      //if (mSource->GetAngDist()->GetDistType() != "iso")
+        //{
+        //GateError("Error: forced detection only supports iso distributions with point source.");
+        //}
+      //}
+    else if (mSource->GetPosDist()->GetPosDisType() == "Plane")
+      {
+      if (mSource->GetAngDist()->GetDistType() == "focused")
+        {
+			 sourceDirection = mSource->GetAngDist()->GetFocusPointCopy();
+			  //G4cout<<"Yeah yeah"<< G4endl;
+		}
+	 else
+		{
+        GateError("Error: CS only supports focused distributions for plane sources.");
+        }
+      }
+    }
+  //else if (mSourceType == "isotropic")
+    //{
+
+    //}
+  else
+    {
+    GateError("Error: CS only supports point,plane or isotropic distributions.");
+    }
+    	//G4cout<<"msource .x :"<< sourceDirection.getX()<< G4endl;
+		//G4cout<<"msource .y :"<< sourceDirection.getY()<< G4endl;
+		//G4cout<<"msource .z :"<< sourceDirection.getZ()<< G4endl;
+    return sourceDirection;
+  }
 
 //-----------------------------------------------------------------------------
 /// Save data
@@ -323,6 +396,7 @@ void GateCrossSectionProductionActor::ResetData() {
 void GateCrossSectionProductionActor::BeginOfRunAction(const G4Run * r) {
   GateVActor::BeginOfRunAction(r);
   GateDebugMessage("Actor", 3, "GateCrossSectionProductionActor -- Begin of Run\n");
+  
 
   gettimeofday(&mTimeOfLastSaveEvent, NULL);
 }
@@ -430,10 +504,31 @@ void GateCrossSectionProductionActor::EndOfEventAction(const G4Event* eve)
 {
   GateDebugMessage("Actor", 3, "GateCrossSectionProductionActor -- End of Event\n");
   double volume_vox=mIsotopeImage->GetValueImage().GetVoxelVolume() *millimeter3/centimeter3; //switch from mm3 to cm3
+  GateSourceMgr * sourceMessenger = GateSourceMgr::GetInstance();
+  G4ThreeVector beamDirection=TestSource(sourceMessenger);
 
+  G4double x1 = mIsotopeImage->GetValueImage().GetVoxelSize().getX();
+  G4double x2 = mIsotopeImage->GetValueImage().GetVoxelSize().getY();
+  
+    	//G4cout<<"msource .x :"<< beamDirection.getX()<< G4endl;
+		//G4cout<<"msource .y :"<< beamDirection.getY()<< G4endl;
+		//G4cout<<"msource .z :"<< beamDirection.getZ()<< G4endl;
+  if (std::abs(beamDirection.getX()) >0.9)
+  {
+	    x1 = mIsotopeImage->GetValueImage().GetVoxelSize().getZ();
+	    //G4cout<<"Beam in x direction"<<G4endl;
+  }  
+  //else G4cout<<"Beam in z direction"<<G4endl;
+  if (std::abs(beamDirection.getY()) >0.9)
+  {
+		x2 = mIsotopeImage->GetValueImage().GetVoxelSize().getZ();
+	    //G4cout<<"Beam in y direction"<<G4endl;
+  }
+  //else G4cout<<"Beam in z direction"<<G4endl;
+  
   G4double prod =0.;
-  G4double beam_entrance_section=mIsotopeImage->GetValueImage().GetVoxelSize().getX()*mIsotopeImage->GetValueImage().GetVoxelSize().getY() / centimeter2; //in cm2
-
+  G4double beam_entrance_section=x1*x2 / centimeter2; //in cm2
+  
   for(std::map<int,int>::iterator i =PixelValuePerEvent.begin() ; i!=PixelValuePerEvent.end(); ++i){
     //in this condition either the pixel has already been treater or no detection in the voxel
     if(mStatImage.GetValue(i->first)!=0 && mEnergyImage.GetValue(i->first)> threshold_energy_O16 ){ //checking that the energy is higher than the threshold to speed up

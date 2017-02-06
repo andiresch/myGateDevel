@@ -1242,6 +1242,8 @@ void GateSingleParticleSourceMessenger::SetNewValue( G4UIcommand* command, G4Str
     {
       fParticleGun->GetAngDist()->SetAngDistType( "planar" ) ;
       fParticleGun->GetAngDist()->SetParticleMomentumDirection( directionCmd->GetNew3VectorValue( newValues ) ) ;
+      // to make momentum direction accessable: GetFocusPointCopy()
+      fParticleGun->GetAngDist()->SetFocusPointCopy(directionCmd->GetNew3VectorValue(newValues));
     }
   else if (command == energyCmd )
     {
