@@ -353,7 +353,7 @@ void GateLETActor::UserSteppingActionInVoxel(const int index, const G4Step* step
             //if (zA ==1)
             //{
                 //G4cout<<"PartName Parent "<<step->GetTrack()->GetDynamicParticle()->GetDefinition()->GetParticleName()<<G4endl;
-                G4cout<<"PartName "<<step->GetTrack()->GetDefinition()->GetParticleName()<<G4endl;
+                //G4cout<<"PartName "<<step->GetTrack()->GetDefinition()->GetParticleName()<<G4endl;
                 //G4cout<<"creat type:    " << step->GetTrack()->GetCreatorProcess()->GetProcessType() <<G4endl;
                 //G4cout<<"creat subty:    " << step->GetTrack()->GetCreatorProcess()->GetProcessSubType() <<G4endl;
                 //G4cout<<"creat proc:    " << step->GetTrack()->GetCreatorProcess()->GetProcessName() <<G4endl;

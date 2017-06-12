@@ -102,7 +102,7 @@ G4bool GateParticleFilter::Accept(const G4Track *aTrack)
       if (thePdefPDG[i] == aTrack->GetDefinition()->GetPDGEncoding()) {
         nFilteredParticles++;
         accept = true;
-        G4cout<<"PDG: "<<aTrack->GetDefinition()->GetPDGEncoding()<<G4endl;
+        //G4cout<<"PDG: "<<aTrack->GetDefinition()->GetPDGEncoding()<<G4endl;
         break;
       }
     }
