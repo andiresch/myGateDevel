@@ -32,22 +32,22 @@ GateParticleFilter::~GateParticleFilter()
 //---------------------------------------------------------------------------
 G4bool GateParticleFilter::Accept(const G4Track *aTrack)
 {
-  G4bool accept = true;
+  //G4bool accept = true;
   std::vector<bool> acceptTemp;// = {true};
   acceptTemp.push_back(true);
   // Test the particle type
   if (!thePdef.empty()) {
-    accept = false;
+    acceptTemp.push_back(false);
     for (size_t i = 0; i < thePdef.size(); i++) {
       if (thePdef[i] == aTrack->GetDefinition()->GetParticleName() ||
           (aTrack->GetDefinition()->GetParticleSubType() == "generic" && thePdef[i] == "GenericIon") ) {
         nFilteredParticles++;
-        accept = true;
+        acceptTemp.back()=true;
         break;
       }
     }
   } // end thePdef !empty
-  if (!accept) return false;
+  //if (!accept) return false;
 
   // Test the particle Z
   if (!thePdefZ.empty()) {
@@ -83,12 +83,7 @@ G4bool GateParticleFilter::Accept(const G4Track *aTrack)
   //if (accept==true){
   //G4cout<<"acceptTemp: "<<" "<<acceptTemp[0]<<" "<<acceptTemp[1]<<" "<<acceptTemp[2]<<G4endl;
   //}
-  if (!(std::all_of(std::begin(acceptTemp), std::end(acceptTemp),[](bool i){return i == true;})))
-            {
-                //G4cout<<"Z: "<< aTrack->GetDefinition()->GetAtomicNumber()<<G4endl;
-                //G4cout<<"A: "<< aTrack->GetDefinition()->GetAtomicMass()<<G4endl;
-                 //G4cout<<"Accept: "<<" "<<acceptTemp[0]<<" "<<acceptTemp[1]<<" "<<acceptTemp[2]<<G4endl;
-                return false;}
+  
             
   //if (!accept)
   //{
@@ -97,56 +92,63 @@ G4bool GateParticleFilter::Accept(const G4Track *aTrack)
   //}
   // Test the particle PDG
   if (!thePdefPDG.empty()) {
-    accept = false;
+    acceptTemp.push_back(false);
     for (size_t i = 0; i < thePdefPDG.size(); i++) {
       if (thePdefPDG[i] == aTrack->GetDefinition()->GetPDGEncoding()) {
         nFilteredParticles++;
-        accept = true;
+        acceptTemp.back()=true;
         //G4cout<<"PDG: "<<aTrack->GetDefinition()->GetPDGEncoding()<<G4endl;
         break;
       }
     }
   } // end thePdefPFG !empty
-  if (!accept) return false;
+  //if (!accept) return false;
 
   // Test the parent
   if (!theParentPdef.empty()) {
-    accept = false;
+    acceptTemp.push_back(false);
     GateTrackIDInfo * trackInfo =
       GateUserActions::GetUserActions()->GetTrackIDInfo(aTrack->GetParentID());
     while (trackInfo) {
       for (size_t i = 0; i < theParentPdef.size(); i++) {
         if (theParentPdef[i] == trackInfo->GetParticleName()) {
           nFilteredParticles++;
-          accept = true;
+          acceptTemp.back()=true;
           break;
         }
       }
-      if (accept == true) break;
+      if (acceptTemp.back() == true) break;
       int id = trackInfo->GetParentID();
       trackInfo = GateUserActions::GetUserActions()->GetTrackIDInfo(id);
     }
   } // end theParentPdef !empty
-  if (!accept) return false;
+  //if (!accept) return false;
 
 
   // Test the directParent
   if (!theDirectParentPdef.empty()) {
-    accept = false;
+    acceptTemp.push_back(false);
     GateTrackIDInfo * trackInfo =
       GateUserActions::GetUserActions()->GetTrackIDInfo(aTrack->GetParentID());
     if (trackInfo) {
       for (size_t i = 0; i < theDirectParentPdef.size(); i++) {
         if (theDirectParentPdef[i] == trackInfo->GetParticleName()) {
           nFilteredParticles++;
-          accept = true;
+          acceptTemp.back()=true;
           break;
         }
       }
     }
   } // end theDirectParentPdef !empty
 
-  return accept;
+   if (!(std::all_of(std::begin(acceptTemp), std::end(acceptTemp),[](bool i){return i == true;})))
+            {
+                //G4cout<<"Z: "<< aTrack->GetDefinition()->GetAtomicNumber()<<G4endl;
+                //G4cout<<"A: "<< aTrack->GetDefinition()->GetAtomicMass()<<G4endl;
+                 //G4cout<<"Accept: "<<" "<<acceptTemp[0]<<" "<<acceptTemp[1]<<" "<<acceptTemp[2]<<G4endl;
+                return false;}
+   else return true;
+  //return accept;
 }
 
 //---------------------------------------------------------------------------
