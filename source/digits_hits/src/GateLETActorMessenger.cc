@@ -41,6 +41,12 @@ void GateLETActorMessenger::BuildCommands(G4String base)
   pSetLETtoWaterCmd = new G4UIcmdWithABool(n, this);
   G4String guid = G4String("Enable dose-to-water correction in LET calculation");
   pSetLETtoWaterCmd->SetGuidance(guid);
+  
+  n = base+"/useCylindricalCS";
+  pSetCylindricalCSCmd = new G4UIcmdWithABool(n, this);
+  guid = G4String("Enable dose-to-water correction in LET calculation");
+  pSetCylindricalCSCmd->SetGuidance(guid);
+
 
   n = base+"/doParallelCalculation";
   pSetParallelCalculationCmd = new G4UIcmdWithABool(n, this);
@@ -59,6 +65,7 @@ void GateLETActorMessenger::BuildCommands(G4String base)
 void GateLETActorMessenger::SetNewValue(G4UIcommand* cmd, G4String newValue)
 {
   if (cmd == pSetLETtoWaterCmd) pLETActor->SetLETtoWater(pSetLETtoWaterCmd->GetNewBoolValue(newValue));
+  if (cmd == pSetCylindricalCSCmd) pLETActor->SetCylindricalCS(pSetCylindricalCSCmd->GetNewBoolValue(newValue));
   if (cmd == pSetParallelCalculationCmd) pLETActor->SetParallelCalculation(pSetParallelCalculationCmd->GetNewBoolValue(newValue));
 
   if (cmd == pAveragingTypeCmd) pLETActor->SetLETType(newValue);

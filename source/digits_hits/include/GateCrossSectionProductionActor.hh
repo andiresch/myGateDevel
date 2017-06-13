@@ -14,6 +14,10 @@ See GATE/LICENSE.txt for further details
 #ifndef GATECROSSSECTIONPRODUCTIONACTOR_HH
 #define GATECROSSSECTIONPRODUCTIONACTOR_HH
 
+//#include "GateVActor.hh"
+//#include "GateFixedForcedDetectionActorMessenger.hh"
+//#include "GateImage.hh"
+#include "GateSourceMgr.hh"
 #include "GateVImageActor.hh"
 #include "GateActorManager.hh"
 #include "G4UnitsTable.hh"
@@ -64,6 +68,9 @@ class GateCrossSectionProductionActor : public GateVImageActor
   virtual void PreUserTrackingAction(const GateVVolume *, const G4Track* t);
   float InterpolLin (float xa , float ya, float xb, float yb, float X);
   double GetSectionEfficace(double nrj,std::map<float, float>& MapSigma);
+  
+  // generalize directions 
+  G4ThreeVector TestSource(GateSourceMgr * sm);
 
 protected:
   GateCrossSectionProductionActor(G4String name, G4int depth=0);
@@ -87,6 +94,11 @@ protected:
   GateImage mDensityImage;
   GateImage mfractionC12Image;
   GateImage mfractionO16Image;
+  
+  // GetSourceDirection
+  GateVSource * mSource;
+  G4String mSourceType;
+  G4ThreeVector beamDirection;
 
   G4String mIsotopeFilename;
   G4String mEnergyFilename;

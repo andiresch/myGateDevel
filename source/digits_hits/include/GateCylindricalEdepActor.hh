@@ -8,40 +8,37 @@ See GATE/LICENSE.txt for further details
 
 
 /*!
-  \class  GateDoseActor
-  \author thibault.frisson@creatis.insa-lyon.fr
-          laurent.guigues@creatis.insa-lyon.fr
-          david.sarrut@creatis.insa-lyon.fr
+  \class  GateCylindricalEdepActor
+  \author A.Resch
+  based on GateDoseActor
   \date	March 2011
 
-	  - DoseToWater option added by Loïc Grevillot
-	  - Dose calculation in inhomogeneous volume added by Thomas Deschler (thomas.deschler@iphc.cnrs.fr)
  */
 
 
-#ifndef GATEDOSEACTOR_HH
-#define GATEDOSEACTOR_HH
+#ifndef GATECYLINDRICALEDEPACTOR_HH
+#define GATECYLINDRICALEDEPACTOR_HH
 
 #include <G4NistManager.hh>
 
 #include "GateVImageActor.hh"
 #include "GateActorManager.hh"
 #include "G4UnitsTable.hh"
-#include "GateDoseActorMessenger.hh"
+#include "GateCylindricalEdepActorMessenger.hh"
 #include "GateImageWithStatistic.hh"
 #include "GateVoxelizedMass.hh"
 
 class G4EmCalculator;
 
-class GateDoseActor : public GateVImageActor
+class GateCylindricalEdepActor : public GateVImageActor
 {
  public:
 
   //-----------------------------------------------------------------------------
   // Actor name
-  virtual ~GateDoseActor();
+  virtual ~GateCylindricalEdepActor();
 
-  FCT_FOR_AUTO_CREATOR_ACTOR(GateDoseActor)
+  FCT_FOR_AUTO_CREATOR_ACTOR(GateCylindricalEdepActor)
 
   //-----------------------------------------------------------------------------
   // Constructs the sensor
@@ -80,13 +77,13 @@ class GateDoseActor : public GateVImageActor
   virtual void EndOfEvent(G4HCofThisEvent*){}
 
 protected:
-  GateDoseActor(G4String name, G4int depth=0);
-  GateDoseActorMessenger* pMessenger;
+  GateCylindricalEdepActor(G4String name, G4int depth=0);
+  GateCylindricalEdepActorMessenger* pMessenger;
   GateVoxelizedMass mVoxelizedMass;
 
   int mCurrentEvent;
   StepHitType mUserStepHitType;
-
+   bool mIsCylindricalSymmetryImage;
   bool mIsLastHitEventImageEnabled;
   bool mIsEdepImageEnabled;
   bool mIsEdepSquaredImageEnabled;
@@ -115,12 +112,10 @@ protected:
   G4String mDoseAlgorithmType;
   G4String mImportMassImage;
   G4String mExportMassImage;
-  
+
   G4EmCalculator* emcalc;
-  
-  const G4Material* water;
 };
 
-MAKE_AUTO_CREATOR_ACTOR(DoseActor,GateDoseActor)
+MAKE_AUTO_CREATOR_ACTOR(CylindricalEdepActor,GateCylindricalEdepActor)
 
 #endif /* end #define GATESIMULATIONSTATISTICACTOR_HH */

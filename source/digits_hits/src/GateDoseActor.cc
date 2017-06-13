@@ -18,7 +18,7 @@
 // g4
 #include <G4EmCalculator.hh>
 #include <G4VoxelLimits.hh>
-#include <G4NistManager.hh>
+#include <G4NistManager.hh> 
 #include <G4PhysicalConstants.hh>
 
 //-----------------------------------------------------------------------------
@@ -85,7 +85,7 @@ void GateDoseActor::Construct() {
 
   // Find G4_WATER. This it needed here because we will used this
   // material for dedx computation for DoseToWater.
-  G4NistManager::Instance()->FindOrBuildMaterial("G4_WATER");
+  water = G4NistManager::Instance()->FindOrBuildMaterial("G4_WATER");
 
   // Record the stepHitType
   mUserStepHitType = mStepHitType;
@@ -349,34 +349,69 @@ void GateDoseActor::UserSteppingActionInVoxel(const int index, const G4Step* ste
       double cut = DBL_MAX;
       cut=1;
       G4String material = step->GetPreStepPoint()->GetMaterial()->GetName();
-      double Energy = step->GetPreStepPoint()->GetKineticEnergy();
+      //double Energy = step->GetPreStepPoint()->GetKineticEnergy();
       G4String PartName = step->GetTrack()->GetDefinition()->GetParticleName();
-      double DEDX=0, DEDX_Water=0;
+      //double DEDX=0, DEDX_Water=0;
 
       // Dose to water: it could be possible to make this process more
       // generic by choosing any material in place of water
-      double Volume = mDoseToWaterImage.GetVoxelVolume();
+      double Volume = mDoseToWaterImage.GetVoxelVolume(); 
+
+  //========================= AR 3.2.2017 ============================
+
+	 const G4Material* materialTest = step->GetPreStepPoint()->GetMaterial();//->GetName();
+     double energy1 = step->GetPreStepPoint()->GetKineticEnergy();
+     double energy2 = step->GetPostStepPoint()->GetKineticEnergy();
+     double energy=(energy1+energy2)/2;
+     const G4ParticleDefinition* partname = step->GetTrack()->GetDefinition();//->GetParticleName();
+
+	//G4double dedxAR = emcalc->ComputeElectronicDEDX(energyAR, partnameAR, materialAR);
+	G4double DEDX = 1;
+	G4double DEDX_Water = 1;
+	// if not a photon get DEDX
+	if ( partname->GetPDGEncoding() != 22  )
+	{       
+		DEDX = emcalc->ComputeTotalDEDX(energy,partname,materialTest, cut);
+        DEDX_Water = emcalc->ComputeTotalDEDX(energy, PartName, "G4_WATER", cut);
+        //G4cout<<"I water: "<< water->GetIonisation()->GetMeanExcitationEnergy()<<G4endl;
+        //G4cout<<"rho water: "<< water->GetDensity()/(g/cm3)<<G4endl;
+		//G4cout<< "PDG code 22: " << PartName<<G4endl;
+	}
+	doseToWater=edep/density/Volume/gray*(DEDX_Water/1.)/(DEDX/(density*e_SI));
+	
+	if (DEDX_Water == 0 || DEDX == 0) {
+		GateWarning("DEDX = 0 in doseToWater, Edep ommited");
+		G4cout<<"PartName: "<< PartName<<" Edep: "<<edep/gray<<G4endl; 
+		doseToWater = 0.0;
+	}
+	
+   }
+    //if ( partnameAR->GetPDGEncoding() != 2212 && PartName!= "e-" &&PartName!= "e+" )
+    //{
+		//G4cout<< "name: "<<PartName<< " pdg code:" <<  partnameAR->GetPDGEncoding() <<G4endl;
+	//}
+  //========================= AR 3.2.2017 ============================
 
       // Other particles should be taken into account (Helium etc), but bug ? FIXME
-      if (PartName== "proton" || PartName== "e-" || PartName== "e+" || PartName== "deuteron") {
-        //if (PartName != "O16[0.0]" && PartName != "alpha" && PartName != "Be7[0.0]" && PartName != "C12[0.0]"){
+      //if (PartName== "proton" || PartName== "e-" || PartName== "e+" || PartName== "deuteron") {
+        ////if (PartName != "O16[0.0]" && PartName != "alpha" && PartName != "Be7[0.0]" && PartName != "C12[0.0]"){
 
-        DEDX = emcalc->ComputeTotalDEDX(Energy, PartName, material, cut);
-        DEDX_Water = emcalc->ComputeTotalDEDX(Energy, PartName, "G4_WATER", cut);
+        //DEDX = emcalc->ComputeTotalDEDX(Energy, PartName, material, cut);
+        //DEDX_Water = emcalc->ComputeTotalDEDX(Energy, PartName, "G4_WATER", cut);
 
-        doseToWater=edep/density/Volume/gray*(DEDX_Water/1.)/(DEDX/(density*e_SI));
-      }
-      else {
-        DEDX = emcalc->ComputeTotalDEDX(100, "proton", material, cut);
-        DEDX_Water = emcalc->ComputeTotalDEDX(100, "proton", "G4_WATER", cut);
-        doseToWater=edep/density/Volume/gray*(DEDX_Water/1.)/(DEDX/(density*e_SI));
-      }
+        //doseToWater=edep/density/Volume/gray*(DEDX_Water/1.)/(DEDX/(density*e_SI));
+      //}
+      //else {
+        //DEDX = emcalc->ComputeTotalDEDX(100, "proton", material, cut);
+        //DEDX_Water = emcalc->ComputeTotalDEDX(100, "proton", "G4_WATER", cut);
+        //doseToWater=edep/density/Volume/gray*(DEDX_Water/1.)/(DEDX/(density*e_SI));
+      //}
 
-      GateDebugMessage("Actor", 2,  "GateDoseActor -- UserSteppingActionInVoxel:\tdose to water = "
-                       << G4BestUnit(doseToWater, "Dose to water")
-                       << " rho = "
-                       << G4BestUnit(density, "Volumic Mass")<< Gateendl );
-    }
+      //GateDebugMessage("Actor", 2,  "GateDoseActor -- UserSteppingActionInVoxel:\tdose to water = "
+                       //<< G4BestUnit(doseToWater, "Dose to water")
+                       //<< " rho = "
+                       //<< G4BestUnit(density, "Volumic Mass")<< Gateendl );
+    //}
 
   if (mIsEdepImageEnabled) {
     GateDebugMessage("Actor", 2, "GateDoseActor -- UserSteppingActionInVoxel:\tedep = " << G4BestUnit(edep, "Energy") << Gateendl);
