@@ -592,8 +592,6 @@ void GateVImage::UpdateSizesFromResolutionAndVoxelSize() {
 		  -halfSize.z()+voxelSize.z()/2.0);
   lineSize = (int)lrint(resolution.x());
   planeSize = (int)lrint(resolution.x()*resolution.y());
-
-  PrintInfo();
 }
 //-----------------------------------------------------------------------------
 

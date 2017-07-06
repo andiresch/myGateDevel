@@ -31,7 +31,7 @@
 #include "GateEnergyResponseFunctor.hh"
 #include "GateFixedForcedDetectionProjector.h"
 #include "GateFixedForcedDetectionProcessType.hh"
-
+#include "GateARFSD.hh"
 /* itk */
 #include <itkTimeProbe.h>
 
@@ -130,6 +130,14 @@ public:
       mGeneratePhotons = true;
       }
     }
+
+  void SetARF(G4String name)
+    {
+    if (name == "true" || name == "True")
+      {
+      mARF = true;
+      }
+    }
   void SetSecondaryFilename(G4String name)
     {
     mSecondaryFilename = name;
@@ -201,13 +209,11 @@ public:
                                            G4ThreeVector dir,
                                            double energy,
                                            double weight,
-                                           int Z,
-                                           const double & properTime = 0);
+                                           int Z);
 
   template<ProcessType VProcess, class TProjectorType>
   void ForceDetectionOfInteraction(TProjectorType *projector,
-                                   InputImageType::Pointer &input,
-                                   const double & properTime = 0);
+                                   InputImageType::Pointer &input);
   void TestSource(GateSourceMgr * sm);
   void GetEnergyList(std::vector<double> & energyList, std::vector<double> & energyWeightList);
   GateVImageVolume* SearchForVoxelisedVolume();
@@ -235,8 +241,12 @@ public:
                                unsigned int & nPixOneSlice);
   void CreateProjectionImages();
   void GeneratePhotons(const unsigned int & numberOfThreads,
-                       const std::vector<std::vector<newPhoton> > & photonList,
-                       const double & properTime);
+                       const std::vector<std::vector<newPhoton> > & photonList);
+
+  void ConnectARF(const unsigned int & numberOfThreads,
+                  const std::vector<std::vector<newPhoton> > & photonList,
+                  unsigned int newHead = 1);
+
   void ComputeFlatField(std::vector<double> & energyList, std::vector<double> & energyWeightList);
 protected:
   GateFixedForcedDetectionActorMessenger * pActorMessenger;
@@ -284,7 +294,9 @@ protected:
 
   /* Geometry information initialized at the beginning of the run */
   G4AffineTransform m_WorldToCT;
+  G4AffineTransform m_WorldToDetector;
   G4AffineTransform m_SourceToCT;
+  G4AffineTransform m_SourceToDetector;
   PointType mPrimarySourcePosition;
   PointType mDetectorPosition;
   VectorType mDetectorRowVector;
@@ -343,6 +355,12 @@ protected:
   double mInteractionSquaredIntegralOverDetector;
   G4String mSourceType;
   bool mGeneratePhotons;
+  bool mARF;
+  unsigned int mNumberOfProcessedPrimaries;
+  unsigned int mNumberOfProcessedSecondaries;
+  unsigned int mNumberOfProcessedCompton;
+  unsigned int mNumberOfProcessedRayleigh;
+  unsigned int mNumberOfProcessedPE;
   /* Account for primary fluence weighting */
   InputImageType::Pointer PrimaryFluenceWeighting(const InputImageType::Pointer input);
 

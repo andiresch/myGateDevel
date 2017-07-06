@@ -108,7 +108,7 @@ void GatePhaseSpaceActor::Construct() {
   EnableBeginOfEventAction(false);
 
   // bEnableEmissionPoint=true;
-  if (bEnablePrimaryEnergy || bEnableEmissionPoint) EnableBeginOfEventAction(true);
+  if (bEnablePrimaryEnergy || bEnableEmissionPoint || bEnableSpotID) EnableBeginOfEventAction(true);
 
   EnablePreUserTrackingAction(true);
   EnableUserSteppingAction(true);
@@ -461,7 +461,7 @@ void GatePhaseSpaceActor::UserSteppingAction(const GateVVolume *, const G4Step *
     else if ( pdg == 11) pIAEARecordType->particle = 2; // electron
     else if ( pdg == -11) pIAEARecordType->particle = 3; // positron
     else if ( pdg == 2112) pIAEARecordType->particle = 4; // neutron
-    else if ( pdg == 2122) pIAEARecordType->particle = 5; // proton
+    else if ( pdg == 2212) pIAEARecordType->particle = 5; // proton
     else GateError("Actor phase space: particle not available in IAEA format." );
 
     pIAEARecordType->energy = e;
