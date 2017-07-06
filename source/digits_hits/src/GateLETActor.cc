@@ -158,7 +158,7 @@ void GateLETActor::Construct() {
 {
   mStepHitType = PostStepHitTypeCylindricalCS;// RandomStepHitType; // Warning
 }
-  // Print information
+  // Print information 
   GateMessage("Actor", 1,
               "\tLET Actor      = '" << GetObjectName() << Gateendl <<
               "\tLET image      = " << mLETFilename << Gateendl <<

@@ -331,7 +331,32 @@ void GateDoseActor::UserSteppingActionInVoxel(const int index, const G4Step* ste
     // Convert deposited energy into Gray
     dose = edep/density/mDoseImage.GetVoxelVolume()/gray;
     // ------------------------------------
+  G4double edepA = step->GetTotalEnergyDeposit()*weight;//*step->GetTrack()->GetWeight();
 
+    // ------------------------------------
+    G4double doseA;
+    G4double densityA = step->GetPreStepPoint()->GetMaterial()->GetDensity();
+    double eee = edepA/(eV);
+    double ddd = densityA/(kg/m3);
+    double vvv = mDoseImage.GetVoxelVolume()/m3;
+    doseA = edepA/(eV)/densityA/(kg/m3)/mDoseImage.GetVoxelVolume()/m3;
+    doseA = eee/ddd/vvv;
+	  G4cout<<"density orig: "<< densityA<<G4endl;
+	  G4cout<<"density: "<< densityA/(kg/m3)<<" kg/m3"<<G4endl;
+	  G4cout<<"volume orig: "<< mDoseImage.GetVoxelVolume()<<" "<<G4endl;
+	  G4cout<<"volume: "<< mDoseImage.GetVoxelVolume()/cm3<<" cm3"<<G4endl;
+	  G4cout<<"volume: "<< mDoseImage.GetVoxelVolume()/m3<<" m3"<<G4endl;
+	  G4cout<<"Edep orig: "<< edep<<G4endl;
+	  G4cout<<"Edep: "<<edep/eV<<" eV"<<G4endl;
+	  G4cout<<"Edep: "<<edep/keV<<" keV"<<G4endl;
+	  G4cout<<"Edep: "<<edep/MeV<<" MeV"<<G4endl;
+	  G4cout<<"dose orig: "<< dose<<G4endl;
+	  G4cout<<"doseA orig: "<< doseA<<G4endl;
+	  G4cout<<"doseA orig*qe: "<< doseA*1.60218e-19<<G4endl;
+	  G4cout<<"doseA : "<< doseA/(eV/kg)<<"eV/kg"<<G4endl;
+	  G4cout<<"doseA : "<< doseA/(MeV/kg)<<"MeV/kg"<<G4endl;
+	  G4cout<<"doseA : "<< doseA/(eV/kg)*1.60218e-19<<"J/kg"<<G4endl;
+	  G4cout<<"gray f : "<< 1/gray<<" unit"<<G4endl<<G4endl ;
     GateDebugMessage("Actor", 2,  "GateDoseActor -- UserSteppingActionInVoxel:\tdose = "
 		     << G4BestUnit(dose, "Dose")
 		     << " rho = "
@@ -451,5 +476,6 @@ void GateDoseActor::UserSteppingActionInVoxel(const int index, const G4Step* ste
   if (mIsNumberOfHitsImageEnabled) mNumberOfHitsImage.AddValue(index, weight);
 
   GateDebugMessageDec("Actor", 4, "GateDoseActor -- UserSteppingActionInVoxel -- end\n");
+}
 }
 //-----------------------------------------------------------------------------
