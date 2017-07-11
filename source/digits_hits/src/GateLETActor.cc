@@ -222,8 +222,10 @@ void GateLETActor::ResetData() {
 
 //-----------------------------------------------------------------------------
 void GateLETActor::BeginOfRunAction(const G4Run * r) {
+    //G4cout<< "BeginOfRunAction: current event: "<<mCurrentEvent<<G4endl;
   GateVActor::BeginOfRunAction(r);
   mCurrentEvent++;
+    //G4cout<< "BeginOfRunAction: next event: "<<mCurrentEvent<<G4endl;
   GateDebugMessage("Actor", 3, "GateLETActor -- Begin of Run\n");
   // ResetData(); // Do no reset here !! (when multiple run);
 }
@@ -254,18 +256,18 @@ void GateLETActor::UserSteppingActionInVoxel(const int index, const G4Step* step
   const double edep = step->GetTotalEnergyDeposit()*weight;
 
   double steplength = step->GetStepLength();
-  if ( mIsSpecialThingOnlySecProtons )
-  {
-	if (step->GetTrack()->GetTrackID()==1 )
-	{
-		return;
-	}
-  }
+  //if ( mIsSpecialThingOnlySecProtons )
+  //{
+	//if (step->GetTrack()->GetTrackID()==1 )
+	//{
+		//return;
+	//}
+  //}
   //if no energy is deposited or energy is deposited outside image => do nothing
-  if (edep == 0) {
-    GateDebugMessage("Actor", 5, "GateLETActor edep == 0 : do nothing\n");
-    return;
-  }
+  //if (edep == 0) {
+    //GateDebugMessage("Actor", 5, "GateLETActor edep == 0 : do nothing\n");
+    //return;
+  //}
   if (index < 0) {
     GateDebugMessage("Actor", 5, "GateLETActor pixel index < 0 : do nothing\n");
     return;
@@ -327,9 +329,13 @@ void GateLETActor::UserSteppingActionInVoxel(const int index, const G4Step* step
 			G4ThreeVector momentumDirection=step->GetTrack()->GetMomentumDirection();
 			//double dx=momentumDirection.x();
 			//double dy=momentumDirection.y();
-			double dz=momentumDirection.z();
-			mNumberOfHitsImage.AddValue(index, dz);
-			//G4cout<<"dz: " << dz <<G4endl;
+			double dz=momentumDirection.z(); 
+            //if ( dz >0 && energy1 > 15 && step->GetTrack()->GetParentID()<2)
+            if ( dz >0  && step->GetTrack()->GetParentID()<2)
+            {
+                mNumberOfHitsImage.AddValue(index, dz);
+			}
+            //G4cout<<"dz: " << dz <<G4endl;
 			//G4cout<<"sq: " << dx*dx*+dy*dy+dz*dz <<G4endl;
 		}
 		
@@ -339,17 +345,36 @@ void GateLETActor::UserSteppingActionInVoxel(const int index, const G4Step* step
 	  //G4cout<<"lastHit :      "<<mLastHitEventImage.GetValue(index) <<G4endl;
 	  //G4cout<<"mCurrentEvent: "<<mCurrentEvent<<G4endl;
 	  //G4cout<<"mIndex:        "<<index<<G4endl;
-	    if ( mLastHitEventImage.GetValue(index) != mCurrentEvent){
+	    if ( (mLastHitEventImage.GetValue(index) != mCurrentEvent) ){
+	    //if ( (mLastHitEventImage.GetValue(index) != mCurrentEvent) && (step->GetTrack()->GetParentID()==0) ){
 			//mLETTempImage.AddValue(index, dedx);
-			
+			//G4int zA = step->GetTrack()->GetDefinition()->GetAtomicNumber();
 			mLastHitEventImage.SetValue(index, mCurrentEvent);
+            //if (zA ==1)
+            //{
+                //G4cout<<"PartName Parent "<<step->GetTrack()->GetDynamicParticle()->GetDefinition()->GetParticleName()<<G4endl;
+                //G4cout<<"PartName "<<step->GetTrack()->GetDefinition()->GetParticleName()<<G4endl;
+                //G4cout<<"creat type:    " << step->GetTrack()->GetCreatorProcess()->GetProcessType() <<G4endl;
+                //G4cout<<"creat subty:    " << step->GetTrack()->GetCreatorProcess()->GetProcessSubType() <<G4endl;
+                //G4cout<<"creat proc:    " << step->GetTrack()->GetCreatorProcess()->GetProcessName() <<G4endl;
+            //}
 			//G4cout<<"lastHit = mCurrentEvent"<<G4endl;
-			//G4cout<<"parentID" << step->GetTrack()->GetParentID()<<G4endl << G4endl;
-			//G4ThreeVector momentumDirection=step->GetTrack()->GetMomentumDirection();
-			////double dx=momentumDirection.x();
-			////double dy=momentumDirection.y();
-			//double dz=momentumDirection.z();
-			mNumberOfHitsImage.AddValue(index, 1);
+			//G4cout<<"Energy 1: "<< energy1<<G4endl;
+			//G4cout<<"Energy 2: "<<energy2<<G4endl;
+            
+            //G4cout<<"mIndex:        "<<index<<G4endl;
+			
+			//G4cout<<"track ID:    " << step->GetTrack()->GetTrackID()<<G4endl;
+			//G4cout<<"parentID:    " << step->GetTrack()->GetParentID()<<G4endl << G4endl;
+			G4ThreeVector momentumDirection=step->GetTrack()->GetMomentumDirection();
+			//double dx=momentumDirection.x();
+			//double dy=momentumDirection.y();
+			double dz=momentumDirection.z();
+            if ( dz >0 &&  step->GetTrack()->GetParentID()<2)
+            //if ( dz >0 && energy1 > 15 && step->GetTrack()->GetParentID()<2)
+            {
+                mNumberOfHitsImage.AddValue(index, 1);
+            }
 			//G4cout<<"dz: " << dz <<G4endl;
 			//G4cout<<"sq: " << dx*dx*+dy*dy+dz*dz <<G4endl;
 		}

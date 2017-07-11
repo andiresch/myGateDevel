@@ -57,8 +57,9 @@ void GateSecondaryProductionActor::Construct() {
   pFrag = new TH1F("fragments","Fragment production",3,0,1);
   pFrag->SetXTitle("Fragment name");
 
-  pFrag->SetCanExtend(TH1::kXaxis); // <--- Root6 (todo when we will compile against root6)
-  //pFrag->SetBit(TH1::kCanRebin); // <--- Root5
+//  pFrag->SetCanExtend(TH1::kXaxis); // <--- Root6 (todo when we will compile against root6)
+
+  pFrag->SetBit(TH1::kCanRebin); // <--- Root5
 
   pFrag->Fill("e- Ioni",0.);
   pFrag->Fill("e-",0.);

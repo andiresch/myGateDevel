@@ -120,10 +120,14 @@ protected:
   G4String mImportMassImage;
   G4String mExportMassImage;
 
+
   G4String mVolumeFilter;
   G4String mMaterialFilter;
 
+
   G4EmCalculator* emcalc;
+  
+  const G4Material* water;
 };
 
 MAKE_AUTO_CREATOR_ACTOR(DoseActor,GateDoseActor)

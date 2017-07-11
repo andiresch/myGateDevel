@@ -18,7 +18,7 @@
 // g4
 #include <G4EmCalculator.hh>
 #include <G4VoxelLimits.hh>
-#include <G4NistManager.hh>
+#include <G4NistManager.hh> 
 #include <G4PhysicalConstants.hh>
 #include <G4Gamma.hh>
 #include <G4Proton.hh>
@@ -95,7 +95,7 @@ void GateDoseActor::Construct() {
 
   // Find G4_WATER. This it needed here because we will used this
   // material for dedx computation for DoseToWater.
-  G4NistManager::Instance()->FindOrBuildMaterial("G4_WATER");
+  water = G4NistManager::Instance()->FindOrBuildMaterial("G4_WATER");
 
   // Record the stepHitType
   mUserStepHitType = mStepHitType;
@@ -413,13 +413,13 @@ void GateDoseActor::UserSteppingActionInVoxel(const int index, const G4Step* ste
       cut=1;
 
       G4String material = step->GetPreStepPoint()->GetMaterial()->GetName();
-      double Energy = step->GetPreStepPoint()->GetKineticEnergy();
+      //double Energy = step->GetPreStepPoint()->GetKineticEnergy();
       G4String PartName = step->GetTrack()->GetDefinition()->GetParticleName();
       //double DEDX=0, DEDX_Water=0;
 
       // Dose to water: it could be possible to make this process more
       // generic by choosing any material in place of water
-      double Volume = mDoseToWaterImage.GetVoxelVolume();
+      double Volume = mDoseToWaterImage.GetVoxelVolume(); 
 
   //========================= AR 3.2.2017 ============================
 
@@ -437,6 +437,8 @@ void GateDoseActor::UserSteppingActionInVoxel(const int index, const G4Step* ste
 	{       
 		DEDX = emcalc->ComputeTotalDEDX(energy,partname,materialTest, cut);
         DEDX_Water = emcalc->ComputeTotalDEDX(energy, PartName, "G4_WATER", cut);
+        //G4cout<<"I water: "<< water->GetIonisation()->GetMeanExcitationEnergy()<<G4endl;
+        //G4cout<<"rho water: "<< water->GetDensity()/(g/cm3)<<G4endl;
 		//G4cout<< "PDG code 22: " << PartName<<G4endl;
 	}
 	doseToWater=edep/density/Volume/gray*(DEDX_Water/1.)/(DEDX/(density*e_SI));
@@ -447,6 +449,7 @@ void GateDoseActor::UserSteppingActionInVoxel(const int index, const G4Step* ste
 		doseToWater = 0.0;
 	}
 	
+   }
     //if ( partnameAR->GetPDGEncoding() != 2212 && PartName!= "e-" &&PartName!= "e+" )
     //{
 		//G4cout<< "name: "<<PartName<< " pdg code:" <<  partnameAR->GetPDGEncoding() <<G4endl;
