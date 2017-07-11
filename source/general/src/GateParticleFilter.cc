@@ -32,44 +32,44 @@ GateParticleFilter::~GateParticleFilter()
 //---------------------------------------------------------------------------
 G4bool GateParticleFilter::Accept(const G4Track *aTrack)
 {
-<<<<<<< HEAD
-  G4bool accept = true;
+//<<<<<<< HEAD
+  //G4bool accept = true;
 
-  // Test the particle type
-  if (!thePdef.empty()) {
-    accept = false;
-=======
+  //// Test the particle type
+  //if (!thePdef.empty()) {
+    //accept = false;
+//=======
   //G4bool accept = true;
   std::vector<bool> acceptTemp;// = {true};
   acceptTemp.push_back(true);
   // Test the particle type
   if (!thePdef.empty()) {
     acceptTemp.push_back(false);
->>>>>>> a192603ade15370f2eb1a20558e3de03d1898630
+//>>>>>>> a192603ade15370f2eb1a20558e3de03d1898630
     for (size_t i = 0; i < thePdef.size(); i++) {
       if (thePdef[i] == aTrack->GetDefinition()->GetParticleName() ||
           (aTrack->GetDefinition()->GetParticleSubType() == "generic" && thePdef[i] == "GenericIon") ) {
         nFilteredParticles++;
-<<<<<<< HEAD
-        accept = true;
-=======
+//<<<<<<< HEAD
+        //accept = true;
+//=======
         acceptTemp.back()=true;
->>>>>>> a192603ade15370f2eb1a20558e3de03d1898630
+//>>>>>>> a192603ade15370f2eb1a20558e3de03d1898630
         break;
       }
     }
   } // end thePdef !empty
-<<<<<<< HEAD
-  if (!accept) return false;
+//<<<<<<< HEAD
+  //if (!accept) return false;
 
-  // Test the particle Z
-  if (!thePdefZ.empty()) {
-    accept = false;
-    for (size_t i = 0; i < thePdefZ.size(); i++) {
-      if (thePdefZ[i] == aTrack->GetDefinition()->GetAtomicNumber()) {
-        nFilteredParticles++;
-        accept = true;
-=======
+  //// Test the particle Z
+  //if (!thePdefZ.empty()) {
+    //accept = false;
+    //for (size_t i = 0; i < thePdefZ.size(); i++) {
+      //if (thePdefZ[i] == aTrack->GetDefinition()->GetAtomicNumber()) {
+        //nFilteredParticles++;
+        //accept = true;
+//=======
   //if (!accept) return false;
 
   // Test the particle Z
@@ -83,18 +83,18 @@ G4bool GateParticleFilter::Accept(const G4Track *aTrack)
         //accept = true;
         acceptTemp.back()=true;
         //acceptTemp[-1]=true;
->>>>>>> a192603ade15370f2eb1a20558e3de03d1898630
+//>>>>>>> a192603ade15370f2eb1a20558e3de03d1898630
         break;
       }
     }
   } // end thePdefZ !empty
-<<<<<<< HEAD
-  if (!accept) return false;
+//<<<<<<< HEAD
+  //if (!accept) return false;
 
-  // Test the parent
-  if (!theParentPdef.empty()) {
-    accept = false;
-=======
+  //// Test the parent
+  //if (!theParentPdef.empty()) {
+    //accept = false;
+//=======
   // Test the particle A
   //G4cout<<"empty A?: "<<thePdefA.empty()<<G4endl;
   if (!thePdefA.empty()) {
@@ -138,7 +138,7 @@ G4bool GateParticleFilter::Accept(const G4Track *aTrack)
   // Test the parent
   if (!theParentPdef.empty()) {
     acceptTemp.push_back(false);
->>>>>>> a192603ade15370f2eb1a20558e3de03d1898630
+//>>>>>>> a192603ade15370f2eb1a20558e3de03d1898630
     GateTrackIDInfo * trackInfo =
       GateUserActions::GetUserActions()->GetTrackIDInfo(aTrack->GetParentID());
     while (trackInfo) {
@@ -149,29 +149,29 @@ G4bool GateParticleFilter::Accept(const G4Track *aTrack)
           break;
         }
       }
-<<<<<<< HEAD
-      if (accept == true) break;
-=======
+//<<<<<<< HEAD
+      //if (accept == true) break;
+//=======
       if (acceptTemp.back() == true) break;
->>>>>>> a192603ade15370f2eb1a20558e3de03d1898630
+//>>>>>>> a192603ade15370f2eb1a20558e3de03d1898630
       int id = trackInfo->GetParentID();
       trackInfo = GateUserActions::GetUserActions()->GetTrackIDInfo(id);
     }
   } // end theParentPdef !empty
-<<<<<<< HEAD
-  if (!accept) return false;
-=======
+//<<<<<<< HEAD
   //if (!accept) return false;
->>>>>>> a192603ade15370f2eb1a20558e3de03d1898630
+//=======
+  //if (!accept) return false;
+//>>>>>>> a192603ade15370f2eb1a20558e3de03d1898630
 
 
   // Test the directParent
   if (!theDirectParentPdef.empty()) {
-<<<<<<< HEAD
-    accept = false;
-=======
+//<<<<<<< HEAD
+    //accept = false;
+//=======
     acceptTemp.push_back(false);
->>>>>>> a192603ade15370f2eb1a20558e3de03d1898630
+//>>>>>>> a192603ade15370f2eb1a20558e3de03d1898630
     GateTrackIDInfo * trackInfo =
       GateUserActions::GetUserActions()->GetTrackIDInfo(aTrack->GetParentID());
     if (trackInfo) {
@@ -185,9 +185,9 @@ G4bool GateParticleFilter::Accept(const G4Track *aTrack)
     }
   } // end theDirectParentPdef !empty
 
-<<<<<<< HEAD
-  return accept;
-=======
+//<<<<<<< HEAD
+  //return accept;
+//=======
    if (!(std::all_of(std::begin(acceptTemp), std::end(acceptTemp),[](bool i){return i == true;})))
             {
                 //G4cout<<"Z: "<< aTrack->GetDefinition()->GetAtomicNumber()<<G4endl;
@@ -196,7 +196,7 @@ G4bool GateParticleFilter::Accept(const G4Track *aTrack)
                 return false;}
    else return true;
   //return accept;
->>>>>>> a192603ade15370f2eb1a20558e3de03d1898630
+//>>>>>>> a192603ade15370f2eb1a20558e3de03d1898630
 }
 
 //---------------------------------------------------------------------------

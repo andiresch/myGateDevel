@@ -69,10 +69,10 @@ GateCylindricalEdepActorMessenger::~GateCylindricalEdepActorMessenger()
 void GateCylindricalEdepActorMessenger::BuildCommands(G4String base)
 {
 
-  //G4String  n = base+"/enableDose";
-  //pEnableDoseCmd = new G4UIcmdWithABool(n, this);
-  //G4String guid = G4String("Enable dose computation");
-  //pEnableDoseCmd->SetGuidance(guid);
+  G4String  n = base+"/enableDose";
+  pEnableDoseCmd = new G4UIcmdWithABool(n, this);
+  G4String guid = G4String("Enable dose computation");
+  pEnableDoseCmd->SetGuidance(guid);
 
   //n = base+"/enableSquaredDose";
   //pEnableDoseSquaredCmd = new G4UIcmdWithABool(n, this);
@@ -104,9 +104,9 @@ void GateCylindricalEdepActorMessenger::BuildCommands(G4String base)
   //guid = G4String("Enable uncertainty dose to water computation");
   //pEnableDoseToWaterUncertaintyCmd->SetGuidance(guid);
 
-  G4String n = base+"/enableEdep";
+  n = base+"/enableEdep";
   pEnableEdepCmd = new G4UIcmdWithABool(n, this);
-  G4String guid = G4String("Enable edep computation");
+  guid = G4String("Enable edep computation");
   pEnableEdepCmd->SetGuidance(guid);
 
   //n = base+"/enableSquaredEdep";
@@ -148,7 +148,7 @@ void GateCylindricalEdepActorMessenger::BuildCommands(G4String base)
 //-----------------------------------------------------------------------------
 void GateCylindricalEdepActorMessenger::SetNewValue(G4UIcommand* cmd, G4String newValue)
 {
-  //if (cmd == pEnableDoseCmd) pDoseActor->EnableDoseImage(pEnableDoseCmd->GetNewBoolValue(newValue));
+  if (cmd == pEnableDoseCmd) pDoseActor->EnableDoseImage(pEnableDoseCmd->GetNewBoolValue(newValue));
   //if (cmd == pEnableDoseSquaredCmd) pDoseActor->EnableDoseSquaredImage(pEnableDoseSquaredCmd->GetNewBoolValue(newValue));
   //if (cmd == pEnableDoseUncertaintyCmd) pDoseActor->EnableDoseUncertaintyImage(pEnableDoseUncertaintyCmd->GetNewBoolValue(newValue));
   //if (cmd == pEnableDoseToWaterCmd) pDoseActor->EnableDoseToWaterImage(pEnableDoseToWaterCmd->GetNewBoolValue(newValue));

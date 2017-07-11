@@ -29,7 +29,7 @@ GateCylindricalEdepActor::GateCylindricalEdepActor(G4String name, G4int depth):
   mCurrentEvent=-1;
   mIsEdepImageEnabled = false;
   
-  //mIsDoseImageEnabled = true;
+  mIsDoseImageEnabled = false;
  
   //mIsDoseToWaterImageEnabled = false;
 
@@ -75,19 +75,19 @@ void GateCylindricalEdepActor::Construct() {
   EnableUserSteppingAction(true);
 
   // Check if at least one image is enabled
-  if (!mIsEdepImageEnabled)  {
+  if (!mIsEdepImageEnabled || !mIsDoseImageEnabled)  {
     GateError("The CylindricalEdepActor " << GetObjectName()
               << " does not have any image enabled ...\n Please select at least one ('enableEdep true' for example)");
   }
 
   // Output Filename
   mEdepFilename = G4String(removeExtension(mSaveFilename))+"-Edep."+G4String(getExtension(mSaveFilename));
-  //mDoseFilename = G4String(removeExtension(mSaveFilename))+"-Dose."+G4String(getExtension(mSaveFilename));
+  mDoseFilename = G4String(removeExtension(mSaveFilename))+"-Dose."+G4String(getExtension(mSaveFilename));
   //mDoseToWaterFilename = G4String(removeExtension(mSaveFilename))+"-DoseToWater."+G4String(getExtension(mSaveFilename));
   
   // Set origin, transform, flag
   SetOriginTransformAndFlagToImage(mEdepImage);
-  //SetOriginTransformAndFlagToImage(mDoseImage);
+  SetOriginTransformAndFlagToImage(mDoseImage);
   //SetOriginTransformAndFlagToImage(mLastHitEventImage);
   //SetOriginTransformAndFlagToImage(mDoseToWaterImage);
 
@@ -112,19 +112,20 @@ void GateCylindricalEdepActor::Construct() {
     mEdepImage.Allocate();
     mEdepImage.SetFilename(mEdepFilename);
   }
-  //if (mIsDoseImageEnabled) {
-    //// mDoseImage.SetLastHitEventImage(&mLastHitEventImage);
+  if (mIsDoseImageEnabled) {
+    // mDoseImage.SetLastHitEventImage(&mLastHitEventImage);
     //mDoseImage.EnableSquaredImage(mIsDoseSquaredImageEnabled);
     //mDoseImage.EnableUncertaintyImage(mIsDoseUncertaintyImageEnabled);
-    //mDoseImage.SetResolutionAndHalfSize(mResolution, mHalfSize, mPosition);
-    //// Force the computation of squared image if uncertainty is enabled
+    mDoseImage.SetResolutionAndHalfSize(mResolution, mHalfSize, mPosition);
+    // Force the computation of squared image if uncertainty is enabled
     //if (mIsDoseUncertaintyImageEnabled) mDoseImage.EnableSquaredImage(true);
 
-    //// DD(mDoseImage.GetVoxelVolume());
-    ////mDoseImage.SetScaleFactor(1e12/mDoseImage.GetVoxelVolume());
-    //mDoseImage.Allocate();
-    //mDoseImage.SetFilename(mDoseFilename);
-  //}
+    // DD(mDoseImage.GetVoxelVolume());
+    //mDoseImage.SetScaleFactor(1e12/mDoseImage.GetVoxelVolume());
+    mDoseImage.Allocate();
+    mDoseImage.SetFilename(mDoseFilename);
+    G4cout<< "allocate dose image and set resolution and file name" <<G4endl<<G4endl;
+  }
   //if (mIsDoseToWaterImageEnabled) {
     //mDoseToWaterImage.EnableSquaredImage(mIsDoseToWaterSquaredImageEnabled);
     //mDoseToWaterImage.EnableUncertaintyImage(mIsDoseToWaterUncertaintyImageEnabled);
@@ -180,9 +181,9 @@ void GateCylindricalEdepActor::SaveData() {
 		  //}
 		  //mDoseTrackAverageLETImage.Write(mLETFilename);
   if (mIsEdepImageEnabled) mEdepImage.SaveData(mCurrentEvent+1);
-  //if (mIsDoseImageEnabled) {
+  if (mIsDoseImageEnabled) {
     //if (mIsDoseNormalisationEnabled)
-      //mDoseImage.SaveData(mCurrentEvent+1, true);
+      mDoseImage.SaveData(mCurrentEvent+1);
     //else
       //mDoseImage.SaveData(mCurrentEvent+1, false);
   //}
@@ -192,7 +193,7 @@ void GateCylindricalEdepActor::SaveData() {
       //mDoseToWaterImage.SaveData(mCurrentEvent+1, true);
     //else
       //mDoseToWaterImage.SaveData(mCurrentEvent+1, false);
-  //}
+  }
 
 }
 //-----------------------------------------------------------------------------
@@ -201,7 +202,7 @@ void GateCylindricalEdepActor::SaveData() {
 //-----------------------------------------------------------------------------
 void GateCylindricalEdepActor::ResetData() {
   if (mIsEdepImageEnabled) mEdepImage.Reset();
-  //if (mIsDoseImageEnabled) mDoseImage.Reset();
+  if (mIsDoseImageEnabled) mDoseImage.Reset();
   //if (mIsDoseToWaterImageEnabled) mDoseToWaterImage.Reset();
 
 }
@@ -261,7 +262,7 @@ void GateCylindricalEdepActor::UserSteppingActionInVoxel(const int index, const 
 
   ////---------------------------------------------------------------------------------
   //// Volume weighting
-  //double density = step->GetPreStepPoint()->GetMaterial()->GetDensity();
+  double density = step->GetPreStepPoint()->GetMaterial()->GetDensity();
   ////---------------------------------------------------------------------------------
 
   ////---------------------------------------------------------------------------------
@@ -270,18 +271,18 @@ void GateCylindricalEdepActor::UserSteppingActionInVoxel(const int index, const 
     //density = mVoxelizedMass.GetVoxelMass(index)/mDoseImage.GetVoxelVolume();
   ////---------------------------------------------------------------------------------
 
-  //double dose=0.;
-  //if (mIsDoseImageEnabled) {
-    //// ------------------------------------
-    //// Convert deposited energy into Gray
-    //dose = edep/density/mDoseImage.GetVoxelVolume()/gray;
-    //// ------------------------------------
+  double dose=0.;
+  if (mIsDoseImageEnabled) {
+    // ------------------------------------
+    // Convert deposited energy into Gray
+    dose = edep/density/mDoseImage.GetVoxelVolume()/gray;
+    // ------------------------------------
 
-    //GateDebugMessage("Actor", 2,  "GateCylindricalEdepActor -- UserSteppingActionInVoxel:\tdose = "
-		     //<< G4BestUnit(dose, "Dose")
-		     //<< " rho = "
-		     //<< G4BestUnit(density, "Volumic Mass")<< Gateendl );
-  //}
+    GateDebugMessage("Actor", 2,  "GateCylindricalEdepActor -- UserSteppingActionInVoxel:\tdose = "
+		     << G4BestUnit(dose, "Dose")
+		     << " rho = "
+		     << G4BestUnit(density, "Volumic Mass")<< Gateendl );
+  }
 
   //double doseToWater = 0;
   //if (mIsDoseToWaterImageEnabled)
@@ -327,15 +328,16 @@ void GateCylindricalEdepActor::UserSteppingActionInVoxel(const int index, const 
     //GateDebugMessage("Actor", 2, "GateCylindricalEdepActor -- UserSteppingActionInVoxel:\tedep = " << G4BestUnit(edep, "Energy") << Gateendl);
   //}
 
-  //if (mIsDoseImageEnabled)
-    //{
+  if (mIsDoseImageEnabled)
+    {
       //if (mIsDoseUncertaintyImageEnabled || mIsDoseSquaredImageEnabled)
         //{
           //if (sameEvent) mDoseImage.AddTempValue(index, dose);
           //else mDoseImage.AddValueAndUpdate(index, dose);
         //}
-      //else mDoseImage.AddValue(index, dose);
-    //}
+      //else 
+      mDoseImage.AddValue(index, dose);
+    }
 
   //if (mIsDoseToWaterImageEnabled)
     //{

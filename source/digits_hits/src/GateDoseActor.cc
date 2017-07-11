@@ -559,5 +559,5 @@ void GateDoseActor::UserSteppingActionInVoxel(const int index, const G4Step* ste
 
   GateDebugMessageDec("Actor", 4, "GateDoseActor -- UserSteppingActionInVoxel -- end\n");
 }
-}
+
 //-----------------------------------------------------------------------------
