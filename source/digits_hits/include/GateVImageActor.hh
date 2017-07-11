@@ -95,6 +95,8 @@ protected:
   G4ThreeVector  mHalfSize;
   G4ThreeVector  mPosition;
   G4ThreeVector  mOrigin;
+  G4int testA;
+
   StepHitType    mStepHitType;
   G4String       mStepHitTypeName;
   GateImage      mImage;

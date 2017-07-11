@@ -170,7 +170,7 @@ protected:
   G4int                          m_voxelNx;
   G4int                          m_voxelNy;
   G4int                          m_voxelNz;
-
+  
   void UpdateNumberOfValues();
   void UpdateSizesFromResolutionAndHalfSize();
   void UpdateSizesFromResolutionAndVoxelSize();

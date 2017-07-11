@@ -95,23 +95,31 @@ void GateImageWithStatistic::SetResolutionAndHalfSize(const G4ThreeVector & reso
 //-----------------------------------------------------------------------------
 void GateImageWithStatistic::SetResolutionAndHalfSizeCylinder(const G4ThreeVector & resolution,
 						      const G4ThreeVector & halfSize, const G4ThreeVector & position)  {
-
-  mValueImage.SetResolutionAndHalfSize(resolution, halfSize, position);
+  
+  mValueImage.SetResolutionAndHalfSizeCylinder(resolution, halfSize, position);
   if (mIsUncertaintyImageEnabled) {
-    mUncertaintyImage.SetResolutionAndHalfSize(resolution, halfSize, position);
+    mUncertaintyImage.SetResolutionAndHalfSizeCylinder(resolution, halfSize, position);
     if (!mIsSquaredImageEnabled) {
-      mSquaredImage.SetResolutionAndHalfSize(resolution, halfSize, position);
-      mTempImage.SetResolutionAndHalfSize(resolution, halfSize, position);
-      mScaledSquaredImage.SetResolutionAndHalfSize(resolution, halfSize, position);
+      mSquaredImage.SetResolutionAndHalfSizeCylinder(resolution, halfSize, position);
+      mTempImage.SetResolutionAndHalfSizeCylinder(resolution, halfSize, position);
+      mScaledSquaredImage.SetResolutionAndHalfSizeCylinder(resolution, halfSize, position);
     }
   }
   if (mIsSquaredImageEnabled) {
-    mSquaredImage.SetResolutionAndHalfSize(resolution, halfSize, position);
-    mTempImage.SetResolutionAndHalfSize(resolution, halfSize, position);
-    mScaledSquaredImage.SetResolutionAndHalfSize(resolution, halfSize, position);
+    mSquaredImage.SetResolutionAndHalfSizeCylinder(resolution, halfSize, position);
+    mTempImage.SetResolutionAndHalfSizeCylinder(resolution, halfSize, position);
+    mScaledSquaredImage.SetResolutionAndHalfSizeCylinder(resolution, halfSize, position);
   }
 
-  mScaledValueImage.SetResolutionAndHalfSize(resolution, halfSize, position);
+  mScaledValueImage.SetResolutionAndHalfSizeCylinder(resolution, halfSize, position);
+}
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+void GateImageWithStatistic::SetResolutionAndHalfSizeCylinder(const G4ThreeVector & resolution,
+						      const G4ThreeVector & halfSize)  {
+  G4ThreeVector mPosition = G4ThreeVector(0.0, 0.0, 0.0);
+   SetResolutionAndHalfSizeCylinder(resolution, halfSize, mPosition);
 }
 //-----------------------------------------------------------------------------
 

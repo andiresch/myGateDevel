@@ -105,6 +105,9 @@ void GateCylindricalEdepActor::Construct() {
     //mEdepImage.EnableUncertaintyImage(mIsEdepUncertaintyImageEnabled);
     //// Force the computation of squared image if uncertainty is enabled
     //if (mIsEdepUncertaintyImageEnabled) mEdepImage.EnableSquaredImage(true);
+    //G4ThreeVector cylinderAxis=G4ThreeVector(0,0,1);
+    //cylinderAxis.setZ(1.0);
+    //G4cout<<"edepactorCS z " << cylinderAxis.z()<<G4endl<<G4endl;
     mEdepImage.SetResolutionAndHalfSizeCylinder(mResolution, mHalfSize, mPosition);
     mEdepImage.Allocate();
     mEdepImage.SetFilename(mEdepFilename);
@@ -213,7 +216,7 @@ void GateCylindricalEdepActor::BeginOfRunAction(const G4Run * r) {
   //
 }
 //-----------------------------------------------------------------------------
-
+ 
 
 //-----------------------------------------------------------------------------
 // Callback at each event

@@ -34,6 +34,7 @@ class GateImageWithStatistic
   void SetResolutionAndHalfSize(const G4ThreeVector & resolution, const G4ThreeVector & halfSize);
   void SetResolutionAndHalfSizeCylinder(const G4ThreeVector & resolution, const G4ThreeVector & halfSize, const G4ThreeVector & position);
   void SetResolutionAndHalfSize(const G4ThreeVector & resolution, const G4ThreeVector & halfSize, const G4ThreeVector & position);
+  void SetResolutionAndHalfSizeCylinder(const G4ThreeVector & resolution, const G4ThreeVector & halfSize);
   void Allocate();
   void Reset(double val=0.0);
 
@@ -80,10 +81,11 @@ class GateImageWithStatistic
   bool mNormalizedToIntegral;
 
   bool mIsSquaredImageEnabled;
-  bool mIsUncertaintyImageEnabled;
+  bool mIsUncertaintyImageEnabled; 
   bool mIsValuesMustBeScaled;
 
   double mScaleFactor;
+
 
   G4String mFilename;
   G4String mSquaredFilename;
